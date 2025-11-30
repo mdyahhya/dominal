@@ -1,7 +1,6 @@
 const fetch = require('node-fetch');
 
 exports.handler = async (event, context) => {
-  // Handle OPTIONS for CORS
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -21,13 +20,16 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // Get token from environment variable
   const HF_TOKEN = process.env.HF_TOKEN;
-  const SPACE_URL = 'https://mdyahya-dominal2.5.hf.space/api/predict';
+  
+  // Try the correct URL - dots become dashes in HF Space URLs
+  const SPACE_URL = 'https://mdyahya-dominal2-5.hf.space/api/predict';
 
-  // Debug logging (remove after testing)
+  console.log('=== DEBUG INFO ===');
   console.log('Token exists:', !!HF_TOKEN);
-  console.log('Token starts with hf_:', HF_TOKEN?.startsWith('hf_'));
+  console.log('Token length:', HF_TOKEN?.length);
+  console.log('Token prefix:', HF_TOKEN?.substring(0, 3));
+  console.log('Space URL:', SPACE_URL);
 
   if (!HF_TOKEN) {
     return {
@@ -38,7 +40,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({ 
         success: false,
-        error: 'HF_TOKEN environment variable not found in Netlify' 
+        error: 'HF_TOKEN not configured. Go to Netlify Site Settings > Environment Variables and add HF_TOKEN' 
       })
     };
   }
@@ -46,7 +48,8 @@ exports.handler = async (event, context) => {
   try {
     const { message, history } = JSON.parse(event.body);
 
-    console.log('Calling HF Space with message:', message);
+    console.log('Sending request to HF Space...');
+    console.log('Message:', message);
 
     const response = await fetch(SPACE_URL, {
       method: 'POST',
@@ -59,16 +62,29 @@ exports.handler = async (event, context) => {
       })
     });
 
-    console.log('HF Response status:', response.status);
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers.raw());
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('HF Error:', errorText);
-      throw new Error(`HF API returned ${response.status}: ${errorText}`);
+      console.error('HF API Error Response:', errorText);
+      
+      return {
+        statusCode: response.status,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({
+          success: false,
+          error: `HuggingFace API Error (${response.status}): ${errorText}`,
+          details: 'Check if your Space is running and token has READ permissions'
+        })
+      };
     }
 
     const result = await response.json();
-    console.log('HF Result:', result);
+    console.log('Success! Result:', JSON.stringify(result).substring(0, 200));
 
     return {
       statusCode: 200,
@@ -82,7 +98,9 @@ exports.handler = async (event, context) => {
       })
     };
   } catch (error) {
-    console.error('Function Error:', error);
+    console.error('Fatal Error:', error.message);
+    console.error('Stack:', error.stack);
+    
     return {
       statusCode: 500,
       headers: {
@@ -91,7 +109,8 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: false,
-        error: error.message
+        error: `Connection failed: ${error.message}`,
+        hint: 'Check Netlify Function logs for details'
       })
     };
   }
