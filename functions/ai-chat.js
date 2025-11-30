@@ -23,7 +23,7 @@ exports.handler = async (event, context) => {
 
   // Get token from environment variable
   const HF_TOKEN = process.env.HF_TOKEN;
-  const SPACE_URL = 'https://mdyahya-dominal2-5.hf.space/api/predict';
+  const SPACE_URL = 'https://mdyahya-dominal2.5.hf.space/api/predict';
 
   // Debug logging (remove after testing)
   console.log('Token exists:', !!HF_TOKEN);
