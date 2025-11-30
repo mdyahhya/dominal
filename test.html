@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOMINAL AI - Diagnostic Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .test-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .test-result {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .status-success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .test-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+
+        .test-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-success { background: #28a745; color: white; }
+        .badge-error { background: #dc3545; color: white; }
+        .badge-warning { background: #ffc107; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 DOMINAL AI Diagnostic Test</h1>
+            <p>Complete system check for your AI chatbot integration</p>
+        </div>
+
+        <div class="content">
+            <!-- Test 1: Frontend Check -->
+            <div class="test-section">
+                <h3>✅ Test 1: Frontend Configuration</h3>
+                <div id="test1-result" class="test-result status-pending">
+                    Checking frontend setup...
+                </div>
+            </div>
+
+            <!-- Test 2: Netlify Function Check -->
+            <div class="test-section">
+                <h3>🔧 Test 2: Netlify Function Accessibility</h3>
+                <button onclick="testNetlifyFunction()">Run Test</button>
+                <div id="test2-result" class="test-result status-info">
+                    Click "Run Test" to check if Netlify function is deployed.
+                </div>
+            </div>
+
+            <!-- Test 3: Environment Variable Check -->
+            <div class="test-section">
+                <h3>🔑 Test 3: Environment Variable (Token) Check</h3>
+                <button onclick="testEnvironmentVar()">Run Test</button>
+                <div id="test3-result" class="test-result status-info">
+                    Click "Run Test" to verify HF_TOKEN is configured.
+                </div>
+            </div>
+
+            <!-- Test 4: HuggingFace Space Check -->
+            <div class="test-section">
+                <h3>🤗 Test 4: HuggingFace Space Status</h3>
+                <button onclick="testHFSpace()">Run Test</button>
+                <div id="test4-result" class="test-result status-info">
+                    Click "Run Test" to check if your Space is accessible.
+                </div>
+            </div>
+
+            <!-- Test 5: Full API Test -->
+            <div class="test-section">
+                <h3>🚀 Test 5: Complete End-to-End Test</h3>
+                <input type="text" class="test-input" id="testMessage" placeholder="Enter test message (e.g., 'Hello')" value="Hello">
+                <button onclick="testFullAPI()">Run Full Test</button>
+                <div id="test5-result" class="test-result status-info">
+                    This will test the complete flow from frontend → Netlify Function → HuggingFace Space.
+                </div>
+            </div>
+
+            <!-- Test 6: CORS Check -->
+            <div class="test-section">
+                <h3>🌐 Test 6: CORS Configuration</h3>
+                <button onclick="testCORS()">Run Test</button>
+                <div id="test6-result" class="test-result status-info">
+                    Check Cross-Origin Resource Sharing configuration.
+                </div>
+            </div>
+
+            <!-- Run All Tests -->
+            <div class="button-group">
+                <button onclick="runAllTests()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    🔥 Run All Tests
+                </button>
+                <button onclick="copyResults()" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    📋 Copy All Results
+                </button>
+                <button onclick="location.reload()" style="background: #6c757d;">
+                    🔄 Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/.netlify/functions/ai-chat';
+        const HF_SPACE_URL = 'https://mdyahya-dominal2-5.hf.space';
+
+        // Test 1: Frontend Check (runs automatically)
+        window.addEventListener('load', () => {
+            const result = document.getElementById('test1-result');
+            let checks = [];
+            
+            checks.push(`✓ API URL configured: ${API_URL}`);
+            checks.push(`✓ HF Space URL: ${HF_SPACE_URL}`);
+            checks.push(`✓ Browser: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`);
+            checks.push(`✓ Page loaded successfully`);
+            
+            result.className = 'test-result status-success';
+            result.textContent = checks.join('\n');
+        });
+
+        // Test 2: Netlify Function Check
+        async function testNetlifyFunction() {
+            const result = document.getElementById('test2-result');
+            result.className = 'test-result status-pending';
+            result.innerHTML = 'Testing Netlify function... <span class="spinner"></span>';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'OPTIONS'
+                });
+
+                let output = `Status Code: ${response.status}\n`;
+                output += `Status Text: ${response.statusText}\n\n`;
+                output += `Headers:\n`;
+                response.headers.forEach((value, key) => {
+                    output += `  ${key}: ${value}\n`;
+                });
+
+                if (response.status === 200 || response.status === 204) {
+                    result.className = 'test-result status-success';
+                    output = '✅ Netlify function is deployed and accessible!\n\n' + output;
+                } else {
+                    result.className = 'test-result status-error';
+                    output = '❌ Netlify function returned unexpected status.\n\n' + output;
+                }
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'test-result status-error';
+                result.textContent = `❌ ERROR: ${error.message}\n\nThe Netlify function might not be deployed.\n\nCheck:\n1. netlify.toml exists in root\n2. functions/ai-chat.js exists\n3. Site has been deployed to Netlify`;
+            }
+        }
+
+        // Test 3: Environment Variable Check
+        async function testEnvironmentVar() {
+            const result = document.getElementById('test3-result');
+            result.className = 'test-result status-pending';
+            result.innerHTML = 'Checking environment variable... <span class="spinner"></span>';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: 'test', history: []})
+                });
+
+                const data = await response.json();
+                let output = `Response Status: ${response.status}\n`;
+                output += `Response Data:\n${JSON.stringify(data, null, 2)}\n\n`;
+
+                if (data.error && data.error.includes('HF_TOKEN')) {
+                    result.className = 'test-result status-error';
+                    output = '❌ HF_TOKEN environment variable NOT configured!\n\n' + output;
+                    output += '\nFIX:\n1. Go to Netlify Dashboard\n2. Site Settings → Environment Variables\n3. Add: HF_TOKEN = hf_your_token_here\n4. Redeploy site';
+                } else if (data.error && data.error.includes('401')) {
+                    result.className = 'test-result status-error';
+                    output = '❌ HF_TOKEN exists but is INVALID or lacks permissions!\n\n' + output;
+                    output += '\nFIX:\n1. Go to HuggingFace → Settings → Tokens\n2. Create new token with READ permissions\n3. Update HF_TOKEN in Netlify\n4. Redeploy site';
+                } else if (data.success || response.status === 200) {
+                    result.className = 'test-result status-success';
+                    output = '✅ HF_TOKEN is configured and working!\n\n' + output;
+                } else {
+                    result.className = 'test-result status-warning';
+                    output = '⚠️ Token check inconclusive.\n\n' + output;
+                }
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'test-result status-error';
+                result.textContent = `❌ ERROR: ${error.message}`;
+            }
+        }
+
+        // Test 4: HuggingFace Space Check
+        async function testHFSpace() {
+            const result = document.getElementById('test4-result');
+            result.className = 'test-result status-pending';
+            result.innerHTML = 'Checking HuggingFace Space... <span class="spinner"></span>';
+
+            try {
+                const response = await fetch(HF_SPACE_URL, {
+                    method: 'GET',
+                    mode: 'no-cors' // Bypass CORS for this test
+                });
+
+                result.className = 'test-result status-success';
+                result.textContent = `✅ HuggingFace Space is accessible!\n\nSpace URL: ${HF_SPACE_URL}\n\nNote: Due to CORS, we can't read the full response, but the Space is reachable.\n\nOpen this URL in a new tab to verify it's running:\n${HF_SPACE_URL}`;
+            } catch (error) {
+                result.className = 'test-result status-error';
+                result.textContent = `❌ Cannot reach HuggingFace Space\n\nError: ${error.message}\n\nSpace URL: ${HF_SPACE_URL}\n\nTry opening the URL in a browser to check if it's sleeping or has an error.`;
+            }
+        }
+
+        // Test 5: Full API Test
+        async function testFullAPI() {
+            const result = document.getElementById('test5-result');
+            const message = document.getElementById('testMessage').value || 'Hello';
+            
+            result.className = 'test-result status-pending';
+            result.innerHTML = `Sending message: "${message}"... <span class="spinner"></span>`;
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        message: message,
+                        history: []
+                    })
+                });
+
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+                const data = await response.json();
+
+                let output = `⏱️ Response time: ${duration} seconds\n`;
+                output += `📊 Status Code: ${response.status}\n\n`;
+
+                if (data.success && data.data) {
+                    result.className = 'test-result status-success';
+                    output += `✅ SUCCESS! AI responded:\n\n`;
+                    output += `"${data.data}"\n\n`;
+                    output += `🎉 Your chatbot is working perfectly!`;
+                } else {
+                    result.className = 'test-result status-error';
+                    output += `❌ FAILED\n\n`;
+                    output += `Error: ${data.error || 'Unknown error'}\n\n`;
+                    output += `Full Response:\n${JSON.stringify(data, null, 2)}`;
+                }
+
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'test-result status-error';
+                result.textContent = `❌ FAILED\n\nError: ${error.message}\n\nThis usually means:\n1. Netlify function not deployed\n2. Network error\n3. Function crashed`;
+            }
+        }
+
+        // Test 6: CORS Check
+        async function testCORS() {
+            const result = document.getElementById('test6-result');
+            result.className = 'test-result status-pending';
+            result.innerHTML = 'Checking CORS headers... <span class="spinner"></span>';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST'
+                    }
+                });
+
+                let output = 'CORS Headers:\n\n';
+                let hasCorrectCORS = false;
+
+                response.headers.forEach((value, key) => {
+                    if (key.toLowerCase().includes('access-control')) {
+                        output += `  ${key}: ${value}\n`;
+                        if (key.toLowerCase() === 'access-control-allow-origin') {
+                            hasCorrectCORS = true;
+                        }
+                    }
+                });
+
+                if (hasCorrectCORS) {
+                    result.className = 'test-result status-success';
+                    output = '✅ CORS is configured correctly!\n\n' + output;
+                } else {
+                    result.className = 'test-result status-warning';
+                    output = '⚠️ CORS headers might be missing.\n\n' + output;
+                }
+
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'test-result status-error';
+                result.textContent = `❌ CORS check failed: ${error.message}`;
+            }
+        }
+
+        // Run All Tests
+        async function runAllTests() {
+            await testNetlifyFunction();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testEnvironmentVar();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testHFSpace();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testCORS();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testFullAPI();
+        }
+
+        // Copy Results
+        function copyResults() {
+            let allResults = 'DOMINAL AI Diagnostic Test Results\n';
+            allResults += '=' .repeat(50) + '\n\n';
+            
+            for (let i = 1; i <= 6; i++) {
+                const testResult = document.getElementById(`test${i}-result`);
+                allResults += `Test ${i}:\n${testResult.textContent}\n\n`;
+                allResults += '-'.repeat(50) + '\n\n';
+            }
+
+            navigator.clipboard.writeText(allResults).then(() => {
+                alert('✅ All test results copied to clipboard!');
+            }).catch(err => {
+                alert('❌ Failed to copy: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
