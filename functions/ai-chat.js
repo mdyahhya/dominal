@@ -21,9 +21,13 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // Get token from secure Netlify environment variable
+  // Get token from environment variable
   const HF_TOKEN = process.env.HF_TOKEN;
   const SPACE_URL = 'https://mdyahya-dominal2-5.hf.space/api/predict';
+
+  // Debug logging (remove after testing)
+  console.log('Token exists:', !!HF_TOKEN);
+  console.log('Token starts with hf_:', HF_TOKEN?.startsWith('hf_'));
 
   if (!HF_TOKEN) {
     return {
@@ -34,13 +38,15 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({ 
         success: false,
-        error: 'HF_TOKEN not configured in Netlify' 
+        error: 'HF_TOKEN environment variable not found in Netlify' 
       })
     };
   }
 
   try {
     const { message, history } = JSON.parse(event.body);
+
+    console.log('Calling HF Space with message:', message);
 
     const response = await fetch(SPACE_URL, {
       method: 'POST',
@@ -53,12 +59,16 @@ exports.handler = async (event, context) => {
       })
     });
 
+    console.log('HF Response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`HF API error: ${response.status} - ${errorText}`);
+      console.error('HF Error:', errorText);
+      throw new Error(`HF API returned ${response.status}: ${errorText}`);
     }
 
     const result = await response.json();
+    console.log('HF Result:', result);
 
     return {
       statusCode: 200,
@@ -72,7 +82,7 @@ exports.handler = async (event, context) => {
       })
     };
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Function Error:', error);
     return {
       statusCode: 500,
       headers: {
