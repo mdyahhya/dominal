@@ -23,7 +23,7 @@ exports.handler = async (event, context) => {
   const HF_TOKEN = process.env.HF_TOKEN;
   
   // Choose one of these models:
-  const MODEL_API = 'https://router.huggingface.co/models/google/gemma-2-2b-it';
+  const MODEL_API = 'https://router.huggingface.co/models/google/gemma-2-2b';
   // https://router.huggingface.co/models/meta-llama/Llama-3.2-3B-Instruct';
   // OR: 'https://router.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct'
   // OR: 'https://router.huggingface.co/models/google/gemma-2-2b-it'
