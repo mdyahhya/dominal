@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
   
   // Try this format - models that work with serverless inference
   // Option 1: Phi-2 (smaller, faster)
-  const MODEL_API = 'https://router.huggingface.co/models/microsoft/phi-2';
+  const MODEL_API = 'https://router.huggingface.co/microsoft/phi-2';
   
   // Option 2: TinyLlama (ultra fast)
   // const MODEL_API = 'https://api-inference.huggingface.co/models/TinyLlama/TinyLlama-1.1B-Chat-v1.0';
