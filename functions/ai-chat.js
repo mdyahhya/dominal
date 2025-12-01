@@ -23,7 +23,7 @@ exports.handler = async (event, context) => {
   const HF_TOKEN = process.env.HF_TOKEN;
   
   // Use Text Generation Inference endpoint (works with all models)
-  const MODEL_API = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
+  const MODEL_API = 'https://router.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
 
   const COMPANY_KB = `You are DOMINAL AI, the official assistant for Dominal Group.
 
