@@ -21,7 +21,21 @@ exports.handler = async (event, context) => {
   }
 
   const HF_TOKEN = process.env.HF_TOKEN;
-  const SPACE_URL = 'https://mdyahya-dominal2-5.hf.space';
+  
+  // Choose one of these models:
+  const MODEL_API = 'https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-3B-Instruct';
+  // OR: 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct'
+  // OR: 'https://api-inference.huggingface.co/models/google/gemma-2-2b-it'
+
+  const COMPANY_KB = `You are DOMINAL AI, the official assistant for Dominal Group.
+
+Company Information:
+- Name: Dominal Group
+- Founder: Yahya Mundewadi (creator of this AI)
+- Industry: Information Technology
+- Services: Custom software development, AI solutions, web/mobile apps, cloud services
+
+You ONLY answer questions about Dominal Group. If asked about other topics, say: "I can only help with Dominal Group services."`;
 
   if (!HF_TOKEN) {
     return {
@@ -40,110 +54,78 @@ exports.handler = async (event, context) => {
   try {
     const { message, history } = JSON.parse(event.body);
 
-    console.log('=== API Call ===');
+    console.log('Using model:', MODEL_API);
     console.log('Message:', message);
-    console.log('History length:', history?.length || 0);
 
-    // Step 1: Initiate the call
-    const callResponse = await fetch(`${SPACE_URL}/gradio_api/call/chat`, {
+    // Build conversation context
+    let conversationContext = COMPANY_KB + '\n\n';
+    
+    // Add history (last 3 exchanges only to keep it fast)
+    const recentHistory = (history || []).slice(-3);
+    recentHistory.forEach(([userMsg, botMsg]) => {
+      conversationContext += `User: ${userMsg}\nAssistant: ${botMsg}\n`;
+    });
+    
+    conversationContext += `User: ${message}\nAssistant:`;
+
+    // Call HuggingFace Inference API
+    const response = await fetch(MODEL_API, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${HF_TOKEN}`
+        'Authorization': `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        data: [message, history || []]
+        inputs: conversationContext,
+        parameters: {
+          max_new_tokens: 300,
+          temperature: 0.7,
+          top_p: 0.9,
+          return_full_text: false
+        },
+        options: {
+          use_cache: false,
+          wait_for_model: true
+        }
       })
     });
 
-    if (!callResponse.ok) {
-      const errorText = await callResponse.text();
-      console.error('Call failed:', callResponse.status, errorText);
-      throw new Error(`API call failed (${callResponse.status}): ${errorText}`);
-    }
-
-    const callData = await callResponse.json();
-    console.log('Call data:', JSON.stringify(callData));
-
-    if (!callData.event_id) {
-      console.error('No event_id in response:', callData);
-      throw new Error('No event_id received from API');
-    }
-
-    const eventId = callData.event_id;
-    console.log('Event ID:', eventId);
-
-    // Step 2: Get result with timeout protection
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Timeout waiting for response')), 30000)
-    );
-
-    const fetchPromise = fetch(`${SPACE_URL}/gradio_api/call/chat/${eventId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${HF_TOKEN}`
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('HF API Error:', response.status, errorText);
+      
+      // Handle rate limit
+      if (response.status === 429) {
+        throw new Error('Rate limit reached. Please wait a moment and try again.');
       }
-    });
-
-    const resultResponse = await Promise.race([fetchPromise, timeoutPromise]);
-
-    if (!resultResponse.ok) {
-      const errorText = await resultResponse.text();
-      console.error('Result fetch failed:', resultResponse.status, errorText);
-      throw new Error(`Failed to get result (${resultResponse.status}): ${errorText}`);
+      
+      throw new Error(`Model API error: ${response.status} - ${errorText}`);
     }
 
-    const resultText = await resultResponse.text();
-    console.log('Raw response (first 500 chars):', resultText.substring(0, 500));
+    const data = await response.json();
+    console.log('Raw response:', JSON.stringify(data));
 
-    // Parse SSE (Server-Sent Events) format
-    const lines = resultText.split('\n').filter(line => line.trim());
-    let reply = null;
-    let foundData = false;
-
-    for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        foundData = true;
-        const dataContent = line.substring(6).trim();
-        
-        // Skip event completion messages
-        if (dataContent === 'null' || dataContent === '{}') {
-          continue;
-        }
-
-        try {
-          const parsed = JSON.parse(dataContent);
-          console.log('Parsed data:', JSON.stringify(parsed));
-
-          // Extract reply from various possible formats
-          if (Array.isArray(parsed)) {
-            reply = parsed[0];
-            break;
-          } else if (typeof parsed === 'string') {
-            reply = parsed;
-            break;
-          } else if (parsed && parsed.data) {
-            reply = Array.isArray(parsed.data) ? parsed.data[0] : parsed.data;
-            break;
-          }
-        } catch (parseError) {
-          console.log('Parse error for line:', line, parseError.message);
-          // If not JSON, might be plain text
-          if (dataContent && dataContent.length > 0) {
-            reply = dataContent;
-          }
-        }
-      }
-    }
-
-    if (!reply) {
-      console.error('No valid reply found. Full response:', resultText);
-      throw new Error('Could not extract reply from API response. Space might be processing.');
+    // Extract reply from different possible response formats
+    let reply;
+    if (Array.isArray(data) && data[0]?.generated_text) {
+      reply = data[0].generated_text;
+    } else if (data.generated_text) {
+      reply = data.generated_text;
+    } else if (typeof data === 'string') {
+      reply = data;
+    } else {
+      console.error('Unexpected response format:', data);
+      throw new Error('Could not parse model response');
     }
 
     // Clean up reply
-    reply = typeof reply === 'string' ? reply.trim() : String(reply).trim();
+    reply = reply.trim();
     
+    // Remove any repeated prompts
+    if (reply.includes('User:') || reply.includes('Assistant:')) {
+      reply = reply.split('User:')[0].split('Assistant:')[0].trim();
+    }
+
     console.log('Final reply:', reply);
 
     return {
@@ -159,9 +141,7 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('=== ERROR ===');
-    console.error('Message:', error.message);
-    console.error('Stack:', error.stack);
+    console.error('Function Error:', error.message);
     
     return {
       statusCode: 500,
@@ -171,7 +151,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: false,
-        error: error.message || 'Unknown error occurred'
+        error: error.message
       })
     };
   }
