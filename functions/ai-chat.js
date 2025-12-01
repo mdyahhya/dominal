@@ -22,13 +22,8 @@ exports.handler = async (event, context) => {
 
   const HF_TOKEN = process.env.HF_TOKEN;
   
-  // Choose one of these models:
-  const MODEL_API = 'https://router.huggingface.co/google/gemma-2-2b-it';
-
- 
-  // https://router.huggingface.co/models/meta-llama/Llama-3.2-3B-Instruct';
-  // OR: 'https://router.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct'
-  // OR: 'https://router.huggingface.co/models/google/gemma-2-2b-it'
+  // Use Text Generation Inference endpoint (works with all models)
+  const MODEL_API = 'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct';
 
   const COMPANY_KB = `You are DOMINAL AI, the official assistant for Dominal Group.
 
@@ -57,21 +52,22 @@ You ONLY answer questions about Dominal Group. If asked about other topics, say:
   try {
     const { message, history } = JSON.parse(event.body);
 
-    console.log('Using model:', MODEL_API);
+    console.log('=== API Call ===');
+    console.log('Model:', MODEL_API);
     console.log('Message:', message);
 
-    // Build conversation context
-    let conversationContext = COMPANY_KB + '\n\n';
+    // Build prompt
+    let prompt = COMPANY_KB + '\n\n';
     
-    // Add history (last 3 exchanges only to keep it fast)
-    const recentHistory = (history || []).slice(-3);
+    // Add last 2 exchanges from history
+    const recentHistory = (history || []).slice(-2);
     recentHistory.forEach(([userMsg, botMsg]) => {
-      conversationContext += `User: ${userMsg}\nAssistant: ${botMsg}\n`;
+      prompt += `User: ${userMsg}\nAssistant: ${botMsg}\n`;
     });
     
-    conversationContext += `User: ${message}\nAssistant:`;
+    prompt += `User: ${message}\nAssistant:`;
 
-    // Call HuggingFace Inference API
+    // Call HuggingFace API
     const response = await fetch(MODEL_API, {
       method: 'POST',
       headers: {
@@ -79,57 +75,68 @@ You ONLY answer questions about Dominal Group. If asked about other topics, say:
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        inputs: conversationContext,
+        inputs: prompt,
         parameters: {
-          max_new_tokens: 300,
+          max_new_tokens: 250,
           temperature: 0.7,
           top_p: 0.9,
+          do_sample: true,
           return_full_text: false
-        },
-        options: {
-          use_cache: false,
-          wait_for_model: true
         }
       })
     });
 
+    console.log('Response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('HF API Error:', response.status, errorText);
+      console.error('HF Error:', errorText);
       
-      // Handle rate limit
+      if (response.status === 503) {
+        throw new Error('Model is loading. Please wait 20 seconds and try again.');
+      }
       if (response.status === 429) {
-        throw new Error('Rate limit reached. Please wait a moment and try again.');
+        throw new Error('Rate limit reached. Please wait a moment.');
       }
       
-      throw new Error(`Model API error: ${response.status} - ${errorText}`);
+      throw new Error(`API error (${response.status}): ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('Raw response:', JSON.stringify(data));
+    console.log('Response data:', JSON.stringify(data).substring(0, 200));
 
-    // Extract reply from different possible response formats
+    // Parse response - handle different formats
     let reply;
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      reply = data[0].generated_text;
+    
+    if (Array.isArray(data)) {
+      // Format: [{ "generated_text": "..." }]
+      reply = data[0]?.generated_text || data[0];
     } else if (data.generated_text) {
+      // Format: { "generated_text": "..." }
       reply = data.generated_text;
     } else if (typeof data === 'string') {
       reply = data;
     } else {
-      console.error('Unexpected response format:', data);
-      throw new Error('Could not parse model response');
+      console.error('Unexpected format:', data);
+      throw new Error('Unexpected response format from model');
     }
 
-    // Clean up reply
-    reply = reply.trim();
+    // Clean reply
+    reply = String(reply).trim();
     
-    // Remove any repeated prompts
-    if (reply.includes('User:') || reply.includes('Assistant:')) {
-      reply = reply.split('User:')[0].split('Assistant:')[0].trim();
+    // Remove any repeated context
+    if (reply.includes('User:')) {
+      reply = reply.split('User:')[0].trim();
+    }
+    if (reply.includes('Assistant:')) {
+      reply = reply.split('Assistant:')[0].trim();
     }
 
     console.log('Final reply:', reply);
+
+    if (!reply || reply.length === 0) {
+      throw new Error('Empty response from model');
+    }
 
     return {
       statusCode: 200,
@@ -144,7 +151,9 @@ You ONLY answer questions about Dominal Group. If asked about other topics, say:
     };
 
   } catch (error) {
-    console.error('Function Error:', error.message);
+    console.error('=== ERROR ===');
+    console.error(error.message);
+    console.error(error.stack);
     
     return {
       statusCode: 500,
