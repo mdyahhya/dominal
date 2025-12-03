@@ -18,7 +18,7 @@ exports.handler = async function(event, context) {
        // model : 'moonshotai/kimi-k2-instruct',
         messages: messages,
         temperature: 0.7,
-        max_tokens: 1024,
+        max_tokens: 400,
         stream: false
       })
     });
