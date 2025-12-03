@@ -56,9 +56,10 @@ body {
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 1000;
+  z-index: 1001;  /* ← Higher than overlay (999) */
   transition: transform 0.3s ease;
 }
+
 
 /* Desktop: Always visible */
 @media (min-width: 769px) {
@@ -230,19 +231,24 @@ body {
 }
 
 .menu-btn {
-  background: none;
-  border: none;
-  color: white;
+  background: rgba(0, 0, 0, 0.1);  /* ← ADD background */
+  border: 1px solid rgba(255, 255, 255, 0.2);  /* ← ADD border */
+  color: #333;  /* ← CHANGE to dark color (or keep white if your top bar is dark) */
   font-size: 24px;
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
-  transition: background 0.2s;
+  transition: all 0.2s;
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.menu-btn:hover {
+  background: rgba(0, 0, 0, 0.2);  /* ← Darker on hover */
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .menu-btn:hover {
@@ -532,11 +538,12 @@ body {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  /* backdrop-filter: blur(4px); ← REMOVED */
   z-index: 999;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
+  pointer-events: none;  /* ← ADD THIS */
 }
 
 /* Show overlay ONLY on mobile when sidebar is open */
@@ -544,6 +551,7 @@ body {
   .overlay.active {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;  /* ← ADD THIS */
   }
 }
 
