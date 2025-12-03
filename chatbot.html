@@ -1027,17 +1027,49 @@ function closeSidebar() {
 
 // Ensure correct state on resize
 window.addEventListener('resize', () => {
+  const mainContent = document.querySelector('.main-content');
+  
   if (window.innerWidth > 768) {
+    // Desktop mode
     sidebar.classList.remove('open');
     overlay.classList.remove('active');
+    
+    // Restore margin if not collapsed
+    if (!sidebar.classList.contains('collapsed')) {
+      mainContent.style.marginLeft = '280px';
+    }
+  } else {
+    // Mobile mode
+    sidebar.classList.remove('collapsed');
+    mainContent.style.marginLeft = '0';
   }
 });
+
 
 // Initialize: Close sidebar on mobile
 if (window.innerWidth <= 768) {
   sidebar.classList.remove('open');
   overlay.classList.remove('active');
 }
+
+  menuBtn.addEventListener('click', () => {
+  if (window.innerWidth <= 768) {
+    // Mobile: Toggle with overlay
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  } else {
+    // Desktop: Toggle sidebar + adjust main content
+    sidebar.classList.toggle('collapsed');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (sidebar.classList.contains('collapsed')) {
+      mainContent.style.marginLeft = '0';
+    } else {
+      mainContent.style.marginLeft = '280px';
+    }
+  }
+});
+
 
 // ============================================================
 // INITIALIZATION
