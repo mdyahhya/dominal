@@ -382,8 +382,8 @@ body {
   display: flex;
   gap: 24px;
   align-items: flex-start;
+  flex-wrap: wrap;               /* ADD: Allow wrapping */
 }
-
 .message-avatar {
   width: 32px;
   height: 32px;
@@ -411,6 +411,10 @@ body {
   line-height: 1.7;
   font-size: 16px;
   word-wrap: break-word;
+  overflow-wrap: break-word;     /* ADD: Better word breaking */
+  word-break: break-word;        /* ADD: Break long words */
+  hyphens: auto;                 /* ADD: Hyphenation */
+  max-width: 100%;               /* ADD: Prevent overflow */
   padding-top: 5px;
 }
 
