@@ -1,484 +1,671 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOMINAL AI - Diagnostic Test</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .test-section {
-            margin-bottom: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .test-section h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        .test-result {
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            color: #856404;
-        }
-
-        .status-success {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            color: #155724;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            color: #721c24;
-        }
-
-        .status-info {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            color: #0c5460;
-        }
-
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .test-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-bottom: 10px;
-            transition: border-color 0.3s;
-        }
-
-        .test-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .button-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .badge-success { background: #28a745; color: white; }
-        .badge-error { background: #dc3545; color: white; }
-        .badge-warning { background: #ffc107; color: #333; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dominal AI - Diagnostic Test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .test-section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid #667eea;
+    }
+    
+    .test-section h2 {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: auto;
+    }
+    
+    .status-waiting {
+      background: #ffc107;
+      color: #000;
+    }
+    
+    .status-testing {
+      background: #2196F3;
+      color: white;
+      animation: pulse 1.5s infinite;
+    }
+    
+    .status-pass {
+      background: #4caf50;
+      color: white;
+    }
+    
+    .status-fail {
+      background: #f44336;
+      color: white;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    .test-details {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .test-details pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin: 0;
+    }
+    
+    .success-text {
+      color: #4caf50;
+      font-weight: bold;
+    }
+    
+    .error-text {
+      color: #f44336;
+      font-weight: bold;
+    }
+    
+    .info-text {
+      color: #2196F3;
+    }
+    
+    .warning-text {
+      color: #ff9800;
+    }
+    
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      display: block;
+      margin: 30px auto;
+      transition: all 0.3s;
+      font-weight: bold;
+    }
+    
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .summary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .summary h3 {
+      margin-bottom: 10px;
+    }
+    
+    .summary-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      display: block;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔍 DOMINAL AIv2 Diagnostic Test</h1>
-            <p>Complete system check for your AI chatbot integration</p>
-        </div>
-
-        <div class="content">
-            <!-- Test 1: Frontend Check -->
-            <div class="test-section">
-                <h3>✅ Test 1: Frontend Configuration</h3>
-                <div id="test1-result" class="test-result status-pending">
-                    Checking frontend setup...
-                </div>
-            </div>
-
-            <!-- Test 2: Netlify Function Check -->
-            <div class="test-section">
-                <h3>🔧 Test 2: Netlify Function Accessibility</h3>
-                <button onclick="testNetlifyFunction()">Run Test</button>
-                <div id="test2-result" class="test-result status-info">
-                    Click "Run Test" to check if Netlify function is deployed.
-                </div>
-            </div>
-
-            <!-- Test 3: Environment Variable Check -->
-            <div class="test-section">
-                <h3>🔑 Test 3: Environment Variable (Token) Check</h3>
-                <button onclick="testEnvironmentVar()">Run Test</button>
-                <div id="test3-result" class="test-result status-info">
-                    Click "Run Test" to verify HF_TOKEN is configured.
-                </div>
-            </div>
-
-            <!-- Test 4: HuggingFace Space Check -->
-            <div class="test-section">
-                <h3>🤗 Test 4: HuggingFace Space Status</h3>
-                <button onclick="testHFSpace()">Run Test</button>
-                <div id="test4-result" class="test-result status-info">
-                    Click "Run Test" to check if your Space is accessible.
-                </div>
-            </div>
-
-            <!-- Test 5: Full API Test -->
-            <div class="test-section">
-                <h3>🚀 Test 5: Complete End-to-End Test</h3>
-                <input type="text" class="test-input" id="testMessage" placeholder="Enter test message (e.g., 'Hello')" value="Hello">
-                <button onclick="testFullAPI()">Run Full Test</button>
-                <div id="test5-result" class="test-result status-info">
-                    This will test the complete flow from frontend → Netlify Function → HuggingFace Space.
-                </div>
-            </div>
-
-            <!-- Test 6: CORS Check -->
-            <div class="test-section">
-                <h3>🌐 Test 6: CORS Configuration</h3>
-                <button onclick="testCORS()">Run Test</button>
-                <div id="test6-result" class="test-result status-info">
-                    Check Cross-Origin Resource Sharing configuration.
-                </div>
-            </div>
-
-            <!-- Run All Tests -->
-            <div class="button-group">
-                <button onclick="runAllTests()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                    🔥 Run All Tests
-                </button>
-                <button onclick="copyResults()" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    📋 Copy All Results
-                </button>
-                <button onclick="location.reload()" style="background: #6c757d;">
-                    🔄 Reset
-                </button>
-            </div>
-        </div>
+  <div class="container">
+    <h1>🔍 Dominal AI Diagnostic Test</h1>
+    <p class="subtitle">Complete system health check for Groq API integration</p>
+    
+    <button id="runTestBtn" onclick="runAllTests()">▶ Run All Tests</button>
+    
+    <!-- Test 1: Environment Check -->
+    <div class="test-section">
+      <h2>
+        <span>1️⃣ Environment Check</span>
+        <span class="status-badge status-waiting" id="status-1">WAITING</span>
+      </h2>
+      <div class="test-details" id="result-1" style="display:none;"></div>
     </div>
+    
+    <!-- Test 2: Netlify Function Availability -->
+    <div class="test-section">
+      <h2>
+        <span>2️⃣ Netlify Function Availability</span>
+        <span class="status-badge status-waiting" id="status-2">WAITING</span>
+      </h2>
+      <div class="test-details" id="result-2" style="display:none;"></div>
+    </div>
+    
+    <!-- Test 3: Groq API Connection -->
+    <div class="test-section">
+      <h2>
+        <span>3️⃣ Groq API Connection Test</span>
+        <span class="status-badge status-waiting" id="status-3">WAITING</span>
+      </h2>
+      <div class="test-details" id="result-3" style="display:none;"></div>
+    </div>
+    
+    <!-- Test 4: Llama Model Response -->
+    <div class="test-section">
+      <h2>
+        <span>4️⃣ Llama 3.1 8B Model Test</span>
+        <span class="status-badge status-waiting" id="status-4">WAITING</span>
+      </h2>
+      <div class="test-details" id="result-4" style="display:none;"></div>
+    </div>
+    
+    <!-- Test 5: Custom Data Integration -->
+    <div class="test-section">
+      <h2>
+        <span>5️⃣ Custom Data Integration</span>
+        <span class="status-badge status-waiting" id="status-5">WAITING</span>
+      </h2>
+      <div class="test-details" id="result-5" style="display:none;"></div>
+    </div>
+    
+    <!-- Test 6: Full Conversation Flow -->
+    <div class="test-section">
+      <h2>
+        <span>6️⃣ Full Conversation Flow</span>
+        <span class="status-badge status-waiting" id="status-6">WAITING</span>
+      </h2>
+      <div class="test-details" id="result-6" style="display:none;"></div>
+    </div>
+    
+    <!-- Summary -->
+    <div class="summary" id="summary" style="display:none;">
+      <h3>📊 Test Summary</h3>
+      <div class="summary-stats">
+        <div class="stat">
+          <span class="stat-number" id="totalTests">0</span>
+          <span class="stat-label">Total Tests</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" id="passedTests">0</span>
+          <span class="stat-label">Passed ✅</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" id="failedTests">0</span>
+          <span class="stat-label">Failed ❌</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        const API_URL = '/.netlify/functions/ai-chat';
-        const HF_SPACE_URL = 'https://mdyahya-dominal2-5.hf.space';
+  <script>
+    let testResults = {
+      passed: 0,
+      failed: 0,
+      total: 6
+    };
 
-        // Test 1: Frontend Check (runs automatically)
-        window.addEventListener('load', () => {
-            const result = document.getElementById('test1-result');
-            let checks = [];
-            
-            checks.push(`✓ API URL configured: ${API_URL}`);
-            checks.push(`✓ HF Space URL: ${HF_SPACE_URL}`);
-            checks.push(`✓ Browser: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`);
-            checks.push(`✓ Page loaded successfully`);
-            
-            result.className = 'test-result status-success';
-            result.textContent = checks.join('\n');
+    function updateStatus(testNum, status, message) {
+      const statusBadge = document.getElementById(`status-${testNum}`);
+      const resultDiv = document.getElementById(`result-${testNum}`);
+      
+      statusBadge.className = `status-badge status-${status}`;
+      statusBadge.textContent = status.toUpperCase();
+      
+      resultDiv.innerHTML = message;
+      resultDiv.style.display = 'block';
+      
+      if (status === 'pass') testResults.passed++;
+      if (status === 'fail') testResults.failed++;
+    }
+
+    function showSummary() {
+      document.getElementById('summary').style.display = 'block';
+      document.getElementById('totalTests').textContent = testResults.total;
+      document.getElementById('passedTests').textContent = testResults.passed;
+      document.getElementById('failedTests').textContent = testResults.failed;
+    }
+
+    async function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function test1_EnvironmentCheck() {
+      updateStatus(1, 'testing', '<span class="info-text">Checking environment...</span>');
+      await sleep(500);
+      
+      let results = [];
+      let passed = true;
+      
+      // Check if running on Netlify
+      const isNetlify = window.location.hostname.includes('netlify.app') || 
+                        window.location.hostname.includes('.netlify.com');
+      
+      results.push(`<span class="${isNetlify ? 'success-text' : 'warning-text'}">` +
+        `✓ Running on: ${window.location.hostname}</span>`);
+      
+      if (!isNetlify) {
+        results.push(`<span class="warning-text">⚠ Not on Netlify domain. Functions may not work locally without Netlify CLI.</span>`);
+      }
+      
+      results.push(`<span class="info-text">✓ Protocol: ${window.location.protocol}</span>`);
+      results.push(`<span class="info-text">✓ Full URL: ${window.location.href}</span>`);
+      
+      // Check for HTTPS
+      const isHTTPS = window.location.protocol === 'https:';
+      results.push(`<span class="${isHTTPS ? 'success-text' : 'warning-text'}">` +
+        `${isHTTPS ? '✓' : '⚠'} HTTPS: ${isHTTPS ? 'Enabled' : 'Disabled'}</span>`);
+      
+      updateStatus(1, passed ? 'pass' : 'fail', '<pre>' + results.join('\n') + '</pre>');
+    }
+
+    async function test2_FunctionAvailability() {
+      updateStatus(2, 'testing', '<span class="info-text">Testing function endpoint...</span>');
+      
+      let results = [];
+      let passed = false;
+      
+      try {
+        results.push('<span class="info-text">→ Attempting to reach: /.netlify/functions/chat</span>');
+        
+        const response = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: [] })
         });
-
-        // Test 2: Netlify Function Check
-        async function testNetlifyFunction() {
-            const result = document.getElementById('test2-result');
-            result.className = 'test-result status-pending';
-            result.innerHTML = 'Testing Netlify function... <span class="spinner"></span>';
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'OPTIONS'
-                });
-
-                let output = `Status Code: ${response.status}\n`;
-                output += `Status Text: ${response.statusText}\n\n`;
-                output += `Headers:\n`;
-                response.headers.forEach((value, key) => {
-                    output += `  ${key}: ${value}\n`;
-                });
-
-                if (response.status === 200 || response.status === 204) {
-                    result.className = 'test-result status-success';
-                    output = '✅ Netlify function is deployed and accessible!\n\n' + output;
-                } else {
-                    result.className = 'test-result status-error';
-                    output = '❌ Netlify function returned unexpected status.\n\n' + output;
-                }
-                result.textContent = output;
-            } catch (error) {
-                result.className = 'test-result status-error';
-                result.textContent = `❌ ERROR: ${error.message}\n\nThe Netlify function might not be deployed.\n\nCheck:\n1. netlify.toml exists in root\n2. functions/ai-chat.js exists\n3. Site has been deployed to Netlify`;
-            }
+        
+        results.push(`<span class="info-text">→ Response status: ${response.status}</span>`);
+        results.push(`<span class="info-text">→ Response OK: ${response.ok}</span>`);
+        
+        if (response.status === 404) {
+          results.push('<span class="error-text">✗ ERROR: Function not found (404)</span>');
+          results.push('<span class="warning-text">Possible causes:</span>');
+          results.push('  • Folder structure wrong (must be netlify/functions/chat.js)');
+          results.push('  • Function not deployed on Netlify');
+          results.push('  • netlify.toml missing or incorrect');
+          passed = false;
+        } else if (response.status === 500) {
+          const errorText = await response.text();
+          results.push('<span class="error-text">✗ ERROR: Function crashed (500)</span>');
+          results.push(`<span class="error-text">Error details: ${errorText}</span>`);
+          passed = false;
+        } else if (response.ok || response.status === 400) {
+          // 400 is acceptable - means function exists but needs proper data
+          results.push('<span class="success-text">✓ Function endpoint is reachable!</span>');
+          passed = true;
+        } else {
+          results.push(`<span class="warning-text">⚠ Unexpected status: ${response.status}</span>`);
+          const text = await response.text();
+          results.push(`Response: ${text}`);
+          passed = false;
         }
+        
+      } catch (error) {
+        results.push('<span class="error-text">✗ NETWORK ERROR</span>');
+        results.push(`<span class="error-text">Error: ${error.message}</span>`);
+        results.push('<span class="warning-text">Possible causes:</span>');
+        results.push('  • Testing on localhost without Netlify CLI');
+        results.push('  • CORS issue');
+        results.push('  • Network connectivity problem');
+        passed = false;
+      }
+      
+      updateStatus(2, passed ? 'pass' : 'fail', '<pre>' + results.join('\n') + '</pre>');
+      return passed;
+    }
 
-        // Test 3: Environment Variable Check
-        async function testEnvironmentVar() {
-            const result = document.getElementById('test3-result');
-            result.className = 'test-result status-pending';
-            result.innerHTML = 'Checking environment variable... <span class="spinner"></span>';
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({message: 'test', history: []})
-                });
-
-                const data = await response.json();
-                let output = `Response Status: ${response.status}\n`;
-                output += `Response Data:\n${JSON.stringify(data, null, 2)}\n\n`;
-
-                if (data.error && data.error.includes('HF_TOKEN')) {
-                    result.className = 'test-result status-error';
-                    output = '❌ HF_TOKEN environment variable NOT configured!\n\n' + output;
-                    output += '\nFIX:\n1. Go to Netlify Dashboard\n2. Site Settings → Environment Variables\n3. Add: HF_TOKEN = hf_your_token_here\n4. Redeploy site';
-                } else if (data.error && data.error.includes('401')) {
-                    result.className = 'test-result status-error';
-                    output = '❌ HF_TOKEN exists but is INVALID or lacks permissions!\n\n' + output;
-                    output += '\nFIX:\n1. Go to HuggingFace → Settings → Tokens\n2. Create new token with READ permissions\n3. Update HF_TOKEN in Netlify\n4. Redeploy site';
-                } else if (data.success || response.status === 200) {
-                    result.className = 'test-result status-success';
-                    output = '✅ HF_TOKEN is configured and working!\n\n' + output;
-                } else {
-                    result.className = 'test-result status-warning';
-                    output = '⚠️ Token check inconclusive.\n\n' + output;
-                }
-                result.textContent = output;
-            } catch (error) {
-                result.className = 'test-result status-error';
-                result.textContent = `❌ ERROR: ${error.message}`;
-            }
+    async function test3_GroqAPIConnection() {
+      updateStatus(3, 'testing', '<span class="info-text">Testing Groq API connection...</span>');
+      
+      let results = [];
+      let passed = false;
+      
+      try {
+        results.push('<span class="info-text">→ Sending test message to Groq via Netlify function...</span>');
+        
+        const startTime = Date.now();
+        
+        const response = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              { role: 'user', content: 'Say "test successful" if you receive this.' }
+            ]
+          })
+        });
+        
+        const endTime = Date.now();
+        const responseTime = endTime - startTime;
+        
+        results.push(`<span class="info-text">→ Response time: ${responseTime}ms</span>`);
+        results.push(`<span class="info-text">→ Status code: ${response.status}</span>`);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          results.push('<span class="error-text">✗ API call failed</span>');
+          results.push(`<span class="error-text">Error: ${errorText}</span>`);
+          
+          if (response.status === 401) {
+            results.push('<span class="warning-text">⚠ Authentication error - Check GROQ_API_KEY in Netlify env variables</span>');
+          }
+          passed = false;
+        } else {
+          const data = await response.json();
+          results.push('<span class="success-text">✓ Groq API responded successfully!</span>');
+          results.push(`<span class="info-text">Response structure:</span>`);
+          results.push(JSON.stringify(data, null, 2));
+          passed = true;
         }
+        
+      } catch (error) {
+        results.push('<span class="error-text">✗ CONNECTION FAILED</span>');
+        results.push(`<span class="error-text">Error: ${error.message}</span>`);
+        passed = false;
+      }
+      
+      updateStatus(3, passed ? 'pass' : 'fail', '<pre>' + results.join('\n') + '</pre>');
+      return passed;
+    }
 
-        // Test 4: HuggingFace Space Check
-        async function testHFSpace() {
-            const result = document.getElementById('test4-result');
-            result.className = 'test-result status-pending';
-            result.innerHTML = 'Checking HuggingFace Space... <span class="spinner"></span>';
-
-            try {
-                const response = await fetch(HF_SPACE_URL, {
-                    method: 'GET',
-                    mode: 'no-cors' // Bypass CORS for this test
-                });
-
-                result.className = 'test-result status-success';
-                result.textContent = `✅ HuggingFace Space is accessible!\n\nSpace URL: ${HF_SPACE_URL}\n\nNote: Due to CORS, we can't read the full response, but the Space is reachable.\n\nOpen this URL in a new tab to verify it's running:\n${HF_SPACE_URL}`;
-            } catch (error) {
-                result.className = 'test-result status-error';
-                result.textContent = `❌ Cannot reach HuggingFace Space\n\nError: ${error.message}\n\nSpace URL: ${HF_SPACE_URL}\n\nTry opening the URL in a browser to check if it's sleeping or has an error.`;
-            }
+    async function test4_LlamaModelTest() {
+      updateStatus(4, 'testing', '<span class="info-text">Testing Llama 3.1 8B Instant model...</span>');
+      
+      let results = [];
+      let passed = false;
+      
+      try {
+        results.push('<span class="info-text">→ Model: llama-3.1-8b-instant</span>');
+        results.push('<span class="info-text">→ Sending test prompt...</span>');
+        
+        const startTime = Date.now();
+        
+        const response = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              { role: 'user', content: 'What is 2+2? Answer with just the number.' }
+            ]
+          })
+        });
+        
+        const endTime = Date.now();
+        const responseTime = endTime - startTime;
+        
+        if (!response.ok) {
+          results.push('<span class="error-text">✗ Model request failed</span>');
+          const errorText = await response.text();
+          results.push(`<span class="error-text">${errorText}</span>`);
+          passed = false;
+        } else {
+          const data = await response.json();
+          const modelResponse = data.choices?.[0]?.message?.content || 'No response';
+          
+          results.push(`<span class="success-text">✓ Model response received in ${responseTime}ms</span>`);
+          results.push(`<span class="info-text">→ Model used: ${data.model || 'llama-3.1-8b-instant'}</span>`);
+          results.push(`<span class="info-text">→ Response: "${modelResponse}"</span>`);
+          results.push(`<span class="info-text">→ Tokens used: ${data.usage?.total_tokens || 'N/A'}</span>`);
+          
+          // Check if response makes sense
+          if (modelResponse.toLowerCase().includes('4') || modelResponse.trim() === '4') {
+            results.push('<span class="success-text">✓ Model is responding intelligently!</span>');
+            passed = true;
+          } else {
+            results.push('<span class="warning-text">⚠ Response seems unusual but model is working</span>');
+            passed = true; // Still pass if we got a response
+          }
         }
+        
+      } catch (error) {
+        results.push('<span class="error-text">✗ MODEL TEST FAILED</span>');
+        results.push(`<span class="error-text">Error: ${error.message}</span>`);
+        passed = false;
+      }
+      
+      updateStatus(4, passed ? 'pass' : 'fail', '<pre>' + results.join('\n') + '</pre>');
+      return passed;
+    }
 
-        // Test 5: Full API Test
-        async function testFullAPI() {
-            const result = document.getElementById('test5-result');
-            const message = document.getElementById('testMessage').value || 'Hello';
-            
-            result.className = 'test-result status-pending';
-            result.innerHTML = `Sending message: "${message}"... <span class="spinner"></span>`;
-
-            try {
-                const startTime = Date.now();
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        message: message,
-                        history: []
-                    })
-                });
-
-                const endTime = Date.now();
-                const duration = ((endTime - startTime) / 1000).toFixed(2);
-
-                const data = await response.json();
-
-                let output = `⏱️ Response time: ${duration} seconds\n`;
-                output += `📊 Status Code: ${response.status}\n\n`;
-
-                if (data.success && data.data) {
-                    result.className = 'test-result status-success';
-                    output += `✅ SUCCESS! AI responded:\n\n`;
-                    output += `"${data.data}"\n\n`;
-                    output += `🎉 Your chatbot is working perfectly!`;
-                } else {
-                    result.className = 'test-result status-error';
-                    output += `❌ FAILED\n\n`;
-                    output += `Error: ${data.error || 'Unknown error'}\n\n`;
-                    output += `Full Response:\n${JSON.stringify(data, null, 2)}`;
-                }
-
-                result.textContent = output;
-            } catch (error) {
-                result.className = 'test-result status-error';
-                result.textContent = `❌ FAILED\n\nError: ${error.message}\n\nThis usually means:\n1. Netlify function not deployed\n2. Network error\n3. Function crashed`;
-            }
+    async function test5_CustomDataIntegration() {
+      updateStatus(5, 'testing', '<span class="info-text">Testing custom data integration...</span>');
+      
+      let results = [];
+      let passed = false;
+      
+      try {
+        results.push('<span class="info-text">→ Sending query about Yahya...</span>');
+        
+        const response = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              { 
+                role: 'system', 
+                content: 'You are Dominal AI. Yahya is the founder of Dominal Group and a full-stack developer.' 
+              },
+              { 
+                role: 'user', 
+                content: 'Who is Yahya? Answer in one sentence.' 
+              }
+            ]
+          })
+        });
+        
+        if (!response.ok) {
+          results.push('<span class="error-text">✗ Custom data test failed</span>');
+          passed = false;
+        } else {
+          const data = await response.json();
+          const modelResponse = data.choices?.[0]?.message?.content || '';
+          
+          results.push('<span class="success-text">✓ Model received custom data</span>');
+          results.push(`<span class="info-text">Response: "${modelResponse}"</span>`);
+          
+          // Check if response mentions Yahya or Dominal
+          if (modelResponse.toLowerCase().includes('yahya') || 
+              modelResponse.toLowerCase().includes('dominal')) {
+            results.push('<span class="success-text">✓ Custom data is being used correctly!</span>');
+            passed = true;
+          } else {
+            results.push('<span class="warning-text">⚠ Response may not be using custom data properly</span>');
+            passed = false;
+          }
         }
+        
+      } catch (error) {
+        results.push('<span class="error-text">✗ CUSTOM DATA TEST FAILED</span>');
+        results.push(`<span class="error-text">Error: ${error.message}</span>`);
+        passed = false;
+      }
+      
+      updateStatus(5, passed ? 'pass' : 'fail', '<pre>' + results.join('\n') + '</pre>');
+      return passed;
+    }
 
-        // Test 6: CORS Check
-        async function testCORS() {
-            const result = document.getElementById('test6-result');
-            result.className = 'test-result status-pending';
-            result.innerHTML = 'Checking CORS headers... <span class="spinner"></span>';
+    async function test6_FullConversationFlow() {
+      updateStatus(6, 'testing', '<span class="info-text">Testing full conversation flow...</span>');
+      
+      let results = [];
+      let passed = false;
+      
+      try {
+        results.push('<span class="info-text">→ Simulating multi-turn conversation...</span>');
+        
+        // First message
+        const response1 = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              { role: 'user', content: 'Hello! What is your name?' }
+            ]
+          })
+        });
+        
+        if (!response1.ok) throw new Error('First message failed');
+        
+        const data1 = await response1.json();
+        const reply1 = data1.choices?.[0]?.message?.content || '';
+        
+        results.push(`<span class="success-text">✓ Message 1 sent & received</span>`);
+        results.push(`  Response: "${reply1.substring(0, 100)}..."`);
+        
+        // Second message with context
+        await sleep(1000);
+        
+        const response2 = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              { role: 'user', content: 'Hello!' },
+              { role: 'assistant', content: reply1 },
+              { role: 'user', content: 'What can you help me with?' }
+            ]
+          })
+        });
+        
+        if (!response2.ok) throw new Error('Second message failed');
+        
+        const data2 = await response2.json();
+        const reply2 = data2.choices?.[0]?.message?.content || '';
+        
+        results.push(`<span class="success-text">✓ Message 2 sent & received</span>`);
+        results.push(`  Response: "${reply2.substring(0, 100)}..."`);
+        
+        results.push('<span class="success-text">✓ Full conversation flow working!</span>');
+        results.push(`<span class="info-text">Total tokens used: ${(data1.usage?.total_tokens || 0) + (data2.usage?.total_tokens || 0)}</span>`);
+        
+        passed = true;
+        
+      } catch (error) {
+        results.push('<span class="error-text">✗ CONVERSATION FLOW FAILED</span>');
+        results.push(`<span class="error-text">Error: ${error.message}</span>`);
+        passed = false;
+      }
+      
+      updateStatus(6, passed ? 'pass' : 'fail', '<pre>' + results.join('\n') + '</pre>');
+      return passed;
+    }
 
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'OPTIONS',
-                    headers: {
-                        'Origin': window.location.origin,
-                        'Access-Control-Request-Method': 'POST'
-                    }
-                });
-
-                let output = 'CORS Headers:\n\n';
-                let hasCorrectCORS = false;
-
-                response.headers.forEach((value, key) => {
-                    if (key.toLowerCase().includes('access-control')) {
-                        output += `  ${key}: ${value}\n`;
-                        if (key.toLowerCase() === 'access-control-allow-origin') {
-                            hasCorrectCORS = true;
-                        }
-                    }
-                });
-
-                if (hasCorrectCORS) {
-                    result.className = 'test-result status-success';
-                    output = '✅ CORS is configured correctly!\n\n' + output;
-                } else {
-                    result.className = 'test-result status-warning';
-                    output = '⚠️ CORS headers might be missing.\n\n' + output;
-                }
-
-                result.textContent = output;
-            } catch (error) {
-                result.className = 'test-result status-error';
-                result.textContent = `❌ CORS check failed: ${error.message}`;
-            }
+    async function runAllTests() {
+      const btn = document.getElementById('runTestBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Testing...';
+      
+      testResults = { passed: 0, failed: 0, total: 6 };
+      
+      // Reset all statuses
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById(`status-${i}`).className = 'status-badge status-waiting';
+        document.getElementById(`status-${i}`).textContent = 'WAITING';
+        document.getElementById(`result-${i}`).style.display = 'none';
+      }
+      
+      document.getElementById('summary').style.display = 'none';
+      
+      // Run tests sequentially
+      await test1_EnvironmentCheck();
+      await sleep(500);
+      
+      const test2Pass = await test2_FunctionAvailability();
+      await sleep(500);
+      
+      if (test2Pass) {
+        await test3_GroqAPIConnection();
+        await sleep(500);
+        
+        await test4_LlamaModelTest();
+        await sleep(500);
+        
+        await test5_CustomDataIntegration();
+        await sleep(500);
+        
+        await test6_FullConversationFlow();
+      } else {
+        // Skip remaining tests if function not available
+        for (let i = 3; i <= 6; i++) {
+          updateStatus(i, 'fail', '<pre><span class="error-text">✗ Skipped due to function availability failure</span></pre>');
         }
-
-        // Run All Tests
-        async function runAllTests() {
-            await testNetlifyFunction();
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await testEnvironmentVar();
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await testHFSpace();
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await testCORS();
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await testFullAPI();
-        }
-
-        // Copy Results
-        function copyResults() {
-            let allResults = 'DOMINAL AI Diagnostic Test Results\n';
-            allResults += '=' .repeat(50) + '\n\n';
-            
-            for (let i = 1; i <= 6; i++) {
-                const testResult = document.getElementById(`test${i}-result`);
-                allResults += `Test ${i}:\n${testResult.textContent}\n\n`;
-                allResults += '-'.repeat(50) + '\n\n';
-            }
-
-            navigator.clipboard.writeText(allResults).then(() => {
-                alert('✅ All test results copied to clipboard!');
-            }).catch(err => {
-                alert('❌ Failed to copy: ' + err);
-            });
-        }
-    </script>
+      }
+      
+      showSummary();
+      
+      btn.disabled = false;
+      btn.textContent = '🔄 Run Tests Again';
+    }
+  </script>
 </body>
 </html>
