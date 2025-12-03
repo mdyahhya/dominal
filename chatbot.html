@@ -81,6 +81,13 @@ body {
   }
 }
 
+  @media (max-width: 768px) {
+  .sidebar {
+    width: 100%;     /* Full width on mobile */
+    max-width: 320px; /* Limit max width */
+  }
+  }
+
 .sidebar-header {
   padding: 12px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -160,19 +167,65 @@ body {
 }
 
 .sidebar-footer {
-  padding: 16px;
+  padding: 12px 16px;  /* Reduced padding */
   border-top: 1px solid rgba(255,255,255,0.1);
   color: var(--text-sidebar);
-  font-size: 13px;
+  font-size: 12px;     /* Smaller font */
+  flex-shrink: 0;      /* Prevent shrinking */
 }
 
 .model-info {
-  padding: 8px 12px;
+  padding: 6px 12px;   /* Reduced padding */
   background: rgba(255,255,255,0.05);
   border-radius: 6px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;  /* Reduced margin */
 }
 
+.clear-all-btn {
+  width: 100%;
+  padding: 8px 16px;   /* Reduced padding */
+  background: transparent;
+  border: 1px solid var(--danger-color);
+  color: var(--danger-color);
+  border-radius: 8px;
+  font-size: 12px;     /* Smaller font */
+  cursor: pointer;
+  margin-top: 6px;     /* Reduced margin */
+  transition: all 0.2s;
+}
+
+
+/* Mobile: Compact sidebar footer */
+@media (max-width: 768px) {
+  .sidebar-footer {
+    padding: 8px 12px;
+  }
+  
+  .model-info {
+    padding: 4px 8px;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  
+  .model-name {
+    font-size: 12px;
+  }
+  
+  .model-version {
+    font-size: 10px;
+  }
+  
+  .creator-info {
+    font-size: 10px;
+  }
+  
+  .clear-all-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    margin-top: 4px;
+  }
+}
+  
 .model-name {
   font-weight: 600;
   font-size: 14px;
@@ -191,18 +244,6 @@ body {
   margin-top: 8px;
 }
 
-.clear-all-btn {
-  width: 100%;
-  padding: 10px 16px;
-  background: transparent;
-  border: 1px solid var(--danger-color);
-  color: var(--danger-color);
-  border-radius: 8px;
-  font-size: 13px;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: all 0.2s;
-}
 
 .clear-all-btn:hover {
   background: var(--danger-color);
