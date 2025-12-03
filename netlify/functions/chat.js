@@ -14,7 +14,8 @@ exports.handler = async function(event, context) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+       // model: 'llama-3.1-8b-instant',
+        model : 'moonshotai/kimi-k2-instruct',
         messages: messages,
         temperature: 0.7,
         max_tokens: 1024,
