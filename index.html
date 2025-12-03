@@ -19,8 +19,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       position: relative;
+      padding: 40px 20px;
     }
 
     /* Animated background grid */
@@ -36,6 +38,7 @@
       background-size: 50px 50px;
       animation: gridMove 20s linear infinite;
       pointer-events: none;
+      z-index: 0;
     }
 
     @keyframes gridMove {
@@ -51,6 +54,7 @@
       opacity: 0.3;
       pointer-events: none;
       animation: float 8s ease-in-out infinite;
+      z-index: 0;
     }
 
     .orb-1 {
@@ -81,8 +85,8 @@
       z-index: 10;
       text-align: center;
       padding: 20px;
-      max-width: 600px;
       width: 100%;
+      margin: auto;
       animation: fadeInUp 1s ease-out;
     }
 
@@ -94,6 +98,50 @@
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+
+    /* Desktop: Horizontal layout */
+    @media (min-width: 769px) {
+      .container {
+        max-width: 1200px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+        text-align: left;
+      }
+
+      .left-section {
+        order: 1;
+      }
+
+      .right-section {
+        order: 2;
+      }
+
+      .logo {
+        margin: 0 0 30px 0 !important;
+      }
+
+      h1, .subtitle {
+        text-align: left;
+      }
+
+      .cta-button {
+        margin: 0;
+      }
+    }
+
+    /* Mobile: Vertical layout */
+    @media (max-width: 768px) {
+      .container {
+        max-width: 600px;
+        display: block;
+      }
+
+      .left-section, .right-section {
+        width: 100%;
       }
     }
 
@@ -194,7 +242,7 @@
     }
 
     .info-section {
-      margin-top: 60px;
+      margin-top: 0;
       padding: 30px;
       background: rgba(255, 255, 255, 0.03);
       border-radius: 20px;
@@ -213,7 +261,7 @@
     .info-item {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 10px;
       margin: 12px 0;
       font-size: clamp(13px, 2vw, 15px);
@@ -239,6 +287,7 @@
 
     .icon {
       font-size: 18px;
+      flex-shrink: 0;
     }
 
     .model-info {
@@ -286,8 +335,17 @@
       .orb {
         filter: blur(60px);
       }
+
+      h1, .subtitle {
+        text-align: center;
+      }
+
+      .info-item {
+        justify-content: center;
+      }
     }
   </style>
+
 </head>
 <body>
   <!-- Animated background -->
