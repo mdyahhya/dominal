@@ -1,304 +1,992 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Load custom data first -->
+<script src="customData.js"></script>
 
-    <title>DOMINAL AI Chat</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #343541;
-            color: #ececf1;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+<title>Dominal AI - Chat Interface</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-        .header {
-            background: #202123;
-            padding: 15px 20px;
-            border-bottom: 1px solid #4d4d4f;
-            text-align: center;
-        }
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f7f8;
+  --bg-sidebar: #202123;
+  --bg-hover: #2a2b32;
+  --bg-chat-user: #f7f7f8;
+  --bg-chat-assistant: #ffffff;
+  --text-primary: #353740;
+  --text-secondary: #6e6e80;
+  --text-sidebar: #ececf1;
+  --border-color: #d9d9e3;
+  --accent-color: #10a37f;
+  --accent-hover: #0d8f6f;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+}
 
-        .header h1 {
-            font-size: 18px;
-            font-weight: 600;
-        }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
+}
 
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
 
-        .message {
-            display: flex;
-            gap: 15px;
-            padding: 20px;
-            animation: fadeIn 0.3s;
-        }
+.sidebar {
+  width: 260px;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  transition: transform 0.3s ease;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
 
-        .user-message {
-            background: #343541;
-        }
+.sidebar-header {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
 
-        .ai-message {
-            background: #444654;
-        }
+.new-chat-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-sidebar);
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+}
 
-        .avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            flex-shrink: 0;
-        }
+.new-chat-btn:hover {
+  background: var(--bg-hover);
+}
 
-        .user-avatar {
-            background: #5436da;
-        }
+.chat-history {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
 
-        .ai-avatar {
-            background: #19c37d;
-        }
+.chat-history-item {
+  padding: 12px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  color: var(--text-sidebar);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 
-        .message-content {
-            flex: 1;
-            line-height: 1.6;
-        }
+.chat-history-item:hover {
+  background: var(--bg-hover);
+}
 
-        .input-container {
-            padding: 20px;
-            background: #343541;
-            border-top: 1px solid #4d4d4f;
-        }
+.chat-history-item.active {
+  background: var(--bg-hover);
+}
 
-        .input-wrapper {
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-        }
+.chat-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-        #messageInput {
-            width: 100%;
-            padding: 15px 50px 15px 15px;
-            background: #40414f;
-            border: 1px solid #565869;
-            border-radius: 8px;
-            color: #ececf1;
-            font-size: 16px;
-            resize: none;
-            outline: none;
-        }
+.delete-chat-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 16px;
+  display: none;
+  transition: color 0.2s;
+}
 
-        #messageInput:focus {
-            border-color: #19c37d;
-        }
+.chat-history-item:hover .delete-chat-btn {
+  display: block;
+}
 
-        #sendButton {
-            position: absolute;
-            right: 10px;
-            bottom: 10px;
-            background: #19c37d;
-            border: none;
-            color: white;
-            width: 35px;
-            height: 35px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+.delete-chat-btn:hover {
+  color: var(--danger-color);
+}
 
-        #sendButton:hover {
-            background: #1a9f6b;
-        }
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-sidebar);
+  font-size: 13px;
+}
 
-        #sendButton:disabled {
-            background: #565869;
-            cursor: not-allowed;
-        }
+.model-info {
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
 
-        .loading {
-            display: flex;
-            gap: 5px;
-            padding: 5px 0;
-        }
+.model-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--accent-color);
+}
 
-        .loading span {
-            width: 8px;
-            height: 8px;
-            background: #ececf1;
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
+.model-version {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 2px;
+}
 
-        .loading span:nth-child(1) { animation-delay: -0.32s; }
-        .loading span:nth-child(2) { animation-delay: -0.16s; }
+.creator-info {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 8px;
+}
 
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-    </style>
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.top-bar {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-primary);
+}
+
+.menu-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 4px 8px;
+}
+
+.top-bar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.logo-container {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.empty-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.empty-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.chat-messages {
+  flex: 1;
+}
+
+.message-wrapper {
+  border-bottom: 1px solid var(--border-color);
+  padding: 24px 0;
+}
+
+.message-wrapper.user {
+  background: var(--bg-chat-user);
+}
+
+.message-wrapper.assistant {
+  background: var(--bg-chat-assistant);
+}
+
+.message {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.message.user .message-avatar {
+  background: #667eea;
+  color: white;
+}
+
+.message.assistant .message-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.message-content {
+  flex: 1;
+  line-height: 1.7;
+  font-size: 16px;
+  word-wrap: break-word;
+  padding-top: 5px;
+}
+
+.typing-indicator {
+  display: inline-flex;
+  gap: 4px;
+  padding: 8px 0;
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+  30% { transform: translateY(-8px); opacity: 1; }
+}
+
+.input-container {
+  padding: 24px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+}
+
+.input-wrapper {
+  max-width: 768px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.chat-input {
+  width: 100%;
+  padding: 16px 52px 16px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  resize: none;
+  min-height: 54px;
+  max-height: 200px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.chat-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.1);
+}
+
+.send-button {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 32px;
+  height: 32px;
+  background: var(--accent-color);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  font-size: 18px;
+}
+
+.send-button:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.send-button:disabled {
+  background: var(--border-color);
+  cursor: not-allowed;
+}
+
+.input-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 12px;
+}
+
+.chat-history::-webkit-scrollbar,
+.chat-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-history::-webkit-scrollbar-track,
+.chat-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover,
+.chat-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: absolute;
+    height: 100%;
+    z-index: 100;
+  }
+  
+  .message {
+    padding: 0 16px;
+  }
+  
+  .input-container {
+    padding: 16px;
+  }
+}
+
+.clear-all-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid var(--danger-color);
+  color: var(--danger-color);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+
+.clear-all-btn:hover {
+  background: var(--danger-color);
+  color: white;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+.overlay.active {
+  display: block;
+}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>🤖 DOMINAL AI - Built by Yahya Mundewadi</h1>
+
+
+
+<div class="app-container">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <button class="new-chat-btn" id="newChatBtn">
+        <span>+</span>
+        <span>New Chat</span>
+      </button>
     </div>
-
-    <div class="chat-container" id="chatContainer"></div>
-
-    <div class="input-container">
-        <div class="input-wrapper">
-            <textarea 
-                id="messageInput" 
-                placeholder="Send a message..." 
-                rows="1"
-            ></textarea>
-            <button id="sendButton">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </div>
+    <div class="chat-history" id="chatHistory"></div>
+    <div class="sidebar-footer">
+      <div class="model-info">
+        <div class="model-name">Dominal AI v2.5</div>
+        <!-- <div class="model-version"></div> -->
+      </div>
+      <button class="clear-all-btn" id="clearAllBtn">Clear All Conversations</button>
+      <div class="creator-info">Built by Yahya © 2025</div>
     </div>
-
-    <script>
-    // Netlify Function endpoint (no token needed here!)
-    const API_URL = '/.netlify/functions/ai-chat';
-
-    const chatContainer = document.getElementById('chatContainer');
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButton');
-
-    let conversationHistory = [];
-
-    function addMessage(text, isUser) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
-        messageDiv.innerHTML = `
-            <div class="avatar ${isUser ? 'user-avatar' : 'ai-avatar'}">
-                ${isUser ? 'U' : 'AI'}
-            </div>
-            <div class="message-content">${text}</div>
-        `;
-        chatContainer.appendChild(messageDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function showLoading() {
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'message ai-message';
-        loadingDiv.id = 'loading';
-        loadingDiv.innerHTML = `
-            <div class="avatar ai-avatar">AI</div>
-            <div class="message-content">
-                <div class="loading">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        `;
-        chatContainer.appendChild(loadingDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function removeLoading() {
-        const loading = document.getElementById('loading');
-        if (loading) loading.remove();
-    }
-
-    async function sendMessage() {
-        const message = messageInput.value.trim();
-        if (!message) return;
-
-        // Add user message
-        addMessage(message, true);
-        messageInput.value = '';
-        sendButton.disabled = true;
-        showLoading();
-
-        try {
-            // Call Netlify function (token is secure on backend)
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: message,
-                    history: conversationHistory
-                })
-            });
-
-            const result = await response.json();
-            removeLoading();
-
-            if (result.success) {
-                const aiReply = result.data;
-                addMessage(aiReply, false);
-                conversationHistory.push([message, aiReply]);
-            } else {
-                addMessage(`Error: ${result.error}`, false);
-                console.error('API Error:', result.error);
-            }
-        } catch (error) {
-            removeLoading();
-            addMessage("Connection error. Please try again.", false);
-            console.error('Fetch Error:', error);
-        }
-
-        sendButton.disabled = false;
-        messageInput.focus();
-    }
-
-    // Event listeners
-    sendButton.addEventListener('click', sendMessage);
+  </div>
+  
+  <div class="overlay" id="overlay"></div>
+  
+  <div class="main-content">
+    <div class="top-bar">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="top-bar-title">Dominal AI</div>
+      <div style="width: 32px;"></div>
+    </div>
     
-    messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
+    <div class="chat-container" id="chatContainer">
+      <div class="empty-state" id="emptyState">
+        <div class="logo-container">D</div>
+        <div class="empty-title">Dominal AI v2.5</div>
+        <div class="empty-subtitle">How can I help you today?</div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+    </div>
+    
+    <div class="input-container">
+      <div class="input-wrapper">
+        <textarea class="chat-input" id="chatInput" placeholder="Send a message..." rows="1"></textarea>
+        <button class="send-button" id="sendButton">➤</button>
+      </div>
+      <div class="input-hint">Dominal AI can make mistakes. Consider checking important information.</div>
+    </div>
+  </div>
+</div>
 
-    messageInput.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 200) + 'px';
-    });
 
-    // Welcome message on load
-    window.addEventListener('load', () => {
-        addMessage("Hello! I am DOMINAL AI, built by Yahya Mundewadi. How can I help you today?", false);
+
+<script>
+
+
+
+// ============================================================
+// CUSTOM DATA FILTERING SYSTEM
+// ============================================================
+
+function getFilteredCustomData(userInput) {
+  const input = userInput.toLowerCase();
+  let dataset = [];
+  let filterCause = "";
+
+  // 1. STUDENT QUERIES
+  if (/students?|boys|girls|class|grade|find.*student|student.*list|roll/i.test(input)) {
+    let grade = null, division = null;
+    
+    // Extract grade (9th, 10th, etc.)
+    let gradeMatch = /(d{1,2})(st|nd|rd|th)?/i.exec(input);
+    if (gradeMatch) grade = parseInt(gradeMatch[1]);
+    
+    // Extract division (A, B, C, etc.)
+    let divMatch = /divisions*([a-e])|(?:class|std|grade)?s*d{1,2}s*([a-e])/i.exec(input);
+    if (divMatch) division = (divMatch[1] || divMatch[2]).toUpperCase();
+    
+    // Find student by name
+    let nameMatch = /finds+students+([a-z ]+)|students+([a-z ]+)/i.exec(input);
+    let searchName = nameMatch ? (nameMatch[1] || nameMatch[2]).trim().toLowerCase() : null;
+    
+    // Filter students
+    let students = CUSTOM_DATA.students || [];
+    if (grade !== null) students = students.filter(s => s.grade === grade);
+    if (division) students = students.filter(s => s.division === division);
+    if (searchName) students = students.filter(s => s.name.toLowerCase().includes(searchName));
+    
+    dataset = students;
+    filterCause = `Students${grade ? ` (Grade ${grade})` : ""}${division ? ` (Division ${division})` : ""}`;
+    
+    return { result: dataset, filterCause };
+  }
+  
+  // 2. PLACEMENT QUERIES
+  if (/placement|placed|companies|offer|package|highest|average|stats/i.test(input)) {
+    let placements = CUSTOM_DATA.placements || [];
+    
+    if (/cse|computer/i.test(input)) {
+      dataset = placements.filter(p => /cse/i.test(p.department));
+      filterCause = "Placements (CSE)";
+    } else if (/mechanical|mech/i.test(input)) {
+      dataset = placements.filter(p => /mechanical/i.test(p.department));
+      filterCause = "Placements (Mechanical)";
+    } else {
+      dataset = placements;
+      filterCause = "Placements (All)";
+    }
+    
+    return { result: dataset, filterCause };
+  }
+  
+  // 3. ABOUT YAHYA / PROFILE
+  if (/yahya|owner|founder|ceo|yourself|who are you|your background|skills/i.test(input)) {
+    dataset = [CUSTOM_DATA.profile];
+    filterCause = "Profile (Yahya)";
+    return { result: dataset, filterCause };
+  }
+  
+  // 4. ABOUT COMPANY
+  if (/dominal group|company|your company|about dominal/i.test(input)) {
+    dataset = [CUSTOM_DATA.company];
+    filterCause = "Company Info";
+    return { result: dataset, filterCause };
+  }
+  
+  // 5. PROJECTS QUERIES
+  if (/projects?|portfolio|your work|apps|built|product|tools|platform/i.test(input)) {
+    let projects = CUSTOM_DATA.projects || [];
+    
+    // Search by project name or tags
+    let filtered = projects.filter(p => {
+      let matchesTag = p.tags?.some(tag => input.includes(tag.toLowerCase()));
+      let matchesName = input.includes(p.name.toLowerCase());
+      return matchesTag || matchesName;
     });
+    
+    if (filtered.length === 0) filtered = projects; // Show all if no specific match
+    
+    dataset = filtered;
+    filterCause = "Projects";
+    return { result: dataset, filterCause };
+  }
+  
+  // 6. NO MATCH - Return empty
+  return { result: [], filterCause: "" };
+}
+
+// ============================================================
+// ORIGINAL CODE WITH CUSTOM DATA INTEGRATION
+// ============================================================
+
+const chatMessages = document.getElementById('chatMessages');
+const chatContainer = document.getElementById('chatContainer');
+const chatInput = document.getElementById('chatInput');
+const sendButton = document.getElementById('sendButton');
+const emptyState = document.getElementById('emptyState');
+const newChatBtn = document.getElementById('newChatBtn');
+const chatHistory = document.getElementById('chatHistory');
+const clearAllBtn = document.getElementById('clearAllBtn');
+const sidebar = document.getElementById('sidebar');
+const menuBtn = document.getElementById('menuBtn');
+const overlay = document.getElementById('overlay');
+
+let conversations = JSON.parse(localStorage.getItem('dominalConversations')) || [];
+let currentConversationId = null;
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+function saveConversations() {
+  localStorage.setItem('dominalConversations', JSON.stringify(conversations));
+}
+
+function getCurrentConversation() {
+  return conversations.find(c => c.id === currentConversationId);
+}
+
+function createNewConversation() {
+  const newConv = {
+    id: generateId(),
+    title: 'New Conversation',
+    messages: [],
+    createdAt: Date.now()
+  };
+  conversations.unshift(newConv);
+  currentConversationId = newConv.id;
+  saveConversations();
+  renderChatHistory();
+  clearChatDisplay();
+}
+
+function switchConversation(id) {
+  currentConversationId = id;
+  renderChatHistory();
+  renderCurrentChat();
+}
+
+function deleteConversation(id) {
+  conversations = conversations.filter(c => c.id !== id);
+  if (currentConversationId === id) {
+    currentConversationId = conversations.length > 0 ? conversations[0].id : null;
+    renderCurrentChat();
+  }
+  saveConversations();
+  renderChatHistory();
+}
+
+function clearAllConversations() {
+  if (confirm('Are you sure you want to delete all conversations? This cannot be undone.')) {
+    conversations = [];
+    currentConversationId = null;
+    saveConversations();
+    renderChatHistory();
+    clearChatDisplay();
+  }
+}
+
+function updateConversationTitle(conv) {
+  if (conv.messages.length > 0 && conv.title === 'New Conversation') {
+    const firstMessage = conv.messages.find(m => m.role === 'user');
+    if (firstMessage) {
+      conv.title = firstMessage.content.substring(0, 30) + (firstMessage.content.length > 30 ? '...' : '');
+      saveConversations();
+      renderChatHistory();
+    }
+  }
+}
+
+function renderChatHistory() {
+  chatHistory.innerHTML = '';
+  conversations.forEach(conv => {
+    const item = document.createElement('div');
+    item.className = 'chat-history-item' + (conv.id === currentConversationId ? ' active' : '');
+    
+    const title = document.createElement('span');
+    title.className = 'chat-title';
+    title.textContent = conv.title;
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-chat-btn';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteConversation(conv.id);
+    };
+    
+    item.appendChild(title);
+    item.appendChild(deleteBtn);
+    item.onclick = () => switchConversation(conv.id);
+    
+    chatHistory.appendChild(item);
+  });
+}
+
+function clearChatDisplay() {
+  chatMessages.innerHTML = '';
+  emptyState.style.display = 'flex';
+  chatMessages.style.display = 'none';
+}
+
+function renderCurrentChat() {
+  const conv = getCurrentConversation();
+  if (!conv || conv.messages.length === 0) {
+    clearChatDisplay();
+    return;
+  }
+  
+  emptyState.style.display = 'none';
+  chatMessages.style.display = 'block';
+  chatMessages.innerHTML = '';
+  
+  conv.messages.forEach(msg => {
+    addMessageToDisplay(msg.role, msg.content, false);
+  });
+  
+  scrollToBottom();
+}
+
+function addMessageToDisplay(role, content, animate = true) {
+  if (emptyState.style.display !== 'none') {
+    emptyState.style.display = 'none';
+    chatMessages.style.display = 'block';
+  }
+  
+  const wrapper = document.createElement('div');
+  wrapper.className = `message-wrapper ${role}`;
+  if (animate) {
+    wrapper.style.opacity = '0';
+    wrapper.style.transform = 'translateY(10px)';
+  }
+  
+  const message = document.createElement('div');
+  message.className = 'message';
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'message-avatar';
+  avatar.textContent = role === 'user' ? 'Y' : 'D';
+  
+  const messageContent = document.createElement('div');
+  messageContent.className = 'message-content';
+  messageContent.textContent = content;
+  
+  message.appendChild(avatar);
+  message.appendChild(messageContent);
+  wrapper.appendChild(message);
+  chatMessages.appendChild(wrapper);
+  
+  if (animate) {
+    setTimeout(() => {
+      wrapper.style.transition = 'all 0.3s ease';
+      wrapper.style.opacity = '1';
+      wrapper.style.transform = 'translateY(0)';
+    }, 10);
+  }
+  
+  scrollToBottom();
+  return messageContent;
+}
+
+function addTypingIndicator() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'message-wrapper assistant';
+  wrapper.id = 'typingIndicator';
+  
+  const message = document.createElement('div');
+  message.className = 'message';
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'message-avatar';
+  avatar.textContent = 'D';
+  
+  const content = document.createElement('div');
+  content.className = 'message-content';
+  
+  const typing = document.createElement('div');
+  typing.className = 'typing-indicator';
+  typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  
+  content.appendChild(typing);
+  message.appendChild(avatar);
+  message.appendChild(content);
+  wrapper.appendChild(message);
+  chatMessages.appendChild(wrapper);
+  
+  scrollToBottom();
+  return wrapper;
+}
+
+function removeTypingIndicator() {
+  const indicator = document.getElementById('typingIndicator');
+  if (indicator) indicator.remove();
+}
+
+function scrollToBottom() {
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// ============================================================
+// ENHANCED SENDMESSAGE WITH CUSTOM DATA FILTERING
+// ============================================================
+
+async function sendMessage() {
+  const message = chatInput.value.trim();
+  if (!message) return;
+  
+  if (!currentConversationId) {
+    createNewConversation();
+  }
+  
+  const conv = getCurrentConversation();
+  
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+  sendButton.disabled = true;
+  
+  conv.messages.push({ role: 'user', content: message });
+  addMessageToDisplay('user', message);
+  updateConversationTitle(conv);
+  saveConversations();
+  
+  // ===== CUSTOM DATA FILTERING =====
+  const filterResult = getFilteredCustomData(message);
+  const filteredData = filterResult.result || [];
+  const filterCause = filterResult.filterCause || "";
+  
+  // Build system prompt with Yahya's data
+  let systemPrompt = `You are Dominal AI, an intelligent assistant for Dominal Group founded by Yahya.
+
+ABOUT YAHYA:
+Yahya is the founder of Dominal Group, a full-stack and mobile developer. He was Training and Placement student in-charge at VVPIET with strong industry connections. His skills include Android (Kotlin/Java), Python, SQL, web development, UI/UX, fullstack architecture, PWAs, AI engineering, and team leadership. He is fluent in English.
+
+Technologies: Kotlin, Python, SQL, HTML, CSS, JavaScript, React, Flutter, Supabase, PostgreSQL.
+
+PROJECTS: pydefine (Python error library), JobCenter (job app), YouBuddy AI (engineering platform), Dominal Browser (privacy browser), Turf Booking System, WhatsApp-style Chat, FaceAttend AI (attendance), Heart AI (disease prediction), SmileUp (smile detection), Coderverse (coding platform), Maidly (maid booking), VVPIET systems (staff profiles, placement tracking, student CV), College AI Chatbot (multilingual), PythonBuddy (online Python IDE with 200+ libraries).
+
+All projects are built under Dominal Group.`;
+  
+  if (filteredData.length > 0) {
+    systemPrompt += `\n\nFILTERED DATA for this query:\n${JSON.stringify(filteredData, null, 2)}
+
+IMPORTANT: Answer ONLY using the data provided above. If information is not in this data, say "I don't have this specific information in my database."`;
+    
+    console.log(`✅ Filter: ${filterCause} | Items: ${filteredData.length}`);
+  }
+  
+  // Build messages for API
+  let apiMessages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: message }
+  ];
+  
+  const typingIndicator = addTypingIndicator();
+  
+  try {
+    // Call Netlify function instead of Ollama
+    const response = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        messages: apiMessages
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    removeTypingIndicator();
+    
+    const assistantMessage = data.choices[0].message.content;
+    
+    if (assistantMessage) {
+      conv.messages.push({ role: 'assistant', content: assistantMessage });
+      addMessageToDisplay('assistant', assistantMessage);
+      saveConversations();
+    }
+    
+  } catch (error) {
+    removeTypingIndicator();
+    addMessageToDisplay('assistant', 'Error: Could not connect to Dominal AI. Please try again.');
+    console.error('Error:', error);
+  }
+  
+  sendButton.disabled = false;
+  chatInput.focus();
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+
+chatInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+});
+
+chatInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+sendButton.addEventListener('click', sendMessage);
+
+newChatBtn.addEventListener('click', () => {
+  createNewConversation();
+  closeSidebar();
+});
+
+clearAllBtn.addEventListener('click', clearAllConversations);
+
+menuBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+  overlay.classList.toggle('active');
+});
+
+overlay.addEventListener('click', closeSidebar);
+
+function closeSidebar() {
+  if (window.innerWidth <= 768) {
+    sidebar.classList.add('collapsed');
+    overlay.classList.remove('active');
+  }
+}
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    sidebar.classList.remove('collapsed');
+    overlay.classList.remove('active');
+  }
+});
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+
+if (conversations.length === 0) {
+  createNewConversation();
+} else {
+  currentConversationId = conversations[0].id;
+  renderChatHistory();
+  renderCurrentChat();
+}
+
+chatInput.focus();
+
 </script>
+
 
 </body>
 </html>
-
-
-
-
