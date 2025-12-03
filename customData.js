@@ -1,6 +1,14 @@
 const CUSTOM_DATA = {
   profile: {
     name: "Yahya",
+    father: "FATHER'S NAME",
+  education: {
+    degree: "Computer Science Engineering",
+    college: "VVPIET",
+    cgpa: "7.5",
+    backlogs: "None (All clear in 4 years)",
+    class12: "87% in 12th Board"
+  },
     role: "Founder & Full-Stack Developer",
     company: "Dominal Group",
     background: "Training and Placement student in-charge at VVPIET, coordinated with industry HR managers, maintains professional connections",
