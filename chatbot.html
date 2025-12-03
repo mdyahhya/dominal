@@ -47,13 +47,41 @@ body {
 }
 
 .sidebar {
-  width: 260px;
-  background: var(--bg-sidebar);
+  width: 280px;
+  background: #1a1a1a;
+  border-right: 1px solid #2a2a2a;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid rgba(255,255,255,0.1);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
   transition: transform 0.3s ease;
 }
+
+/* Desktop: Always visible */
+@media (min-width: 769px) {
+  .sidebar {
+    transform: translateX(0) !important;
+  }
+  
+  .sidebar.collapsed {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Mobile: Hidden by default */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
 
 .sidebar.collapsed {
   transform: translateX(-100%);
@@ -173,9 +201,24 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-primary);
-  position: relative;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
 }
+
+/* Desktop: Add margin for sidebar */
+@media (min-width: 769px) {
+  .main-content {
+    margin-left: 280px;
+  }
+}
+
+/* Mobile: No margin */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
+}
+
 
 .top-bar {
   padding: 12px 16px;
@@ -187,13 +230,39 @@ body {
 }
 
 .menu-btn {
-  background: transparent;
+  background: none;
   border: none;
+  color: white;
   font-size: 24px;
   cursor: pointer;
-  color: var(--text-primary);
-  padding: 4px 8px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.menu-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Hide menu button on desktop */
+@media (min-width: 769px) {
+  .menu-btn {
+    display: none;
+  }
+}
+
+/* Show menu button on mobile */
+@media (max-width: 768px) {
+  .menu-btn {
+    display: flex;
+  }
+}
+
 
 .top-bar-title {
   font-size: 16px;
@@ -457,15 +526,34 @@ body {
 }
 
 .overlay {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 99;
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
 }
+
+/* Show overlay ONLY on mobile when sidebar is open */
+@media (max-width: 768px) {
+  .overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Hide overlay on desktop always */
+@media (min-width: 769px) {
+  .overlay {
+    display: none !important;
+  }
+}
+
 
 .overlay.active {
   display: block;
@@ -951,25 +1039,45 @@ newChatBtn.addEventListener('click', () => {
 clearAllBtn.addEventListener('click', clearAllConversations);
 
 menuBtn.addEventListener('click', () => {
-  sidebar.classList.toggle('collapsed');
-  overlay.classList.toggle('active');
+  // Only toggle on mobile
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
+  }
 });
 
 overlay.addEventListener('click', closeSidebar);
 
 function closeSidebar() {
   if (window.innerWidth <= 768) {
-    sidebar.classList.add('collapsed');
+    sidebar.classList.remove('open');
     overlay.classList.remove('active');
   }
 }
 
+// Update on new chat button click (mobile only)
+// newChatBtn.addEventListener('click', () => {
+//   createNewConversation();
+//   if (window.innerWidth <= 768) {
+//     closeSidebar();
+//   }
+// });
+  // (Already included in step 5 above - remove duplicate if exists)
+
+
+// Ensure correct state on resize
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) {
-    sidebar.classList.remove('collapsed');
+    sidebar.classList.remove('open');
     overlay.classList.remove('active');
   }
 });
+
+// Initialize: Close sidebar on mobile
+if (window.innerWidth <= 768) {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('active');
+}
 
 // ============================================================
 // INITIALIZATION
