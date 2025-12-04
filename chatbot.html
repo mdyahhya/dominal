@@ -593,11 +593,103 @@ body {
   }
 }
 
+
+.voice-button {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;  /* ADD */
+}
+
+.voice-button svg {
+  width: 20px;   /* ADD */
+  height: 20px;  /* ADD */
+}
+
+.voice-button:hover {
+  background: var(--bg-secondary);
+  color: var(--accent-color);
+}
+
+.voice-button.recording {
+  color: #ef4444;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Update chat input to make room for voice button */
+.chat-input {
+  width: 100%;
+  padding: 16px 52px 16px 52px; /* Changed from 16px 52px 16px 16px */
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  resize: none;
+  min-height: 54px;
+  max-height: 200px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Message action buttons (copy, speak) */
+.message-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.message-wrapper.assistant:hover .message-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.action-btn:hover {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.action-btn.speaking {
+  background: var(--accent-color);
+  color: white;
+}
+
 </style>
 </head>
 <body>
-
-
 
 <div class="app-container">
   <div class="sidebar" id="sidebar">
@@ -611,7 +703,6 @@ body {
     <div class="sidebar-footer">
       <div class="model-info">
         <div class="model-name">Dominal AI v2.5</div>
-        <!-- <div class="model-version"></div> -->
       </div>
       <button class="clear-all-btn" id="clearAllBtn">Clear All Conversations</button>
       <div class="creator-info">Built by Yahya © 2025</div>
@@ -638,7 +729,16 @@ body {
     
     <div class="input-container">
       <div class="input-wrapper">
-        <textarea class="chat-input" id="chatInput" placeholder="Send a message..." rows="1"></textarea>
+        <button class="voice-button" id="voiceButton" title="Voice input">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+    <line x1="12" y1="19" x2="12" y2="23"></line>
+    <line x1="8" y1="23" x2="16" y2="23"></line>
+  </svg>
+</button>
+
+        <textarea class="chat-input" id="chatInput" placeholder="Send a message or use voice..." rows="1"></textarea>
         <button class="send-button" id="sendButton">➤</button>
       </div>
       <div class="input-hint">Dominal AI can make mistakes. Consider checking important information.</div>
@@ -900,7 +1000,49 @@ function addMessageToDisplay(role, content, animate = true) {
   messageContent.textContent = content;
   
   message.appendChild(avatar);
-  message.appendChild(messageContent);
+  
+  const contentWrapper = document.createElement('div');
+  contentWrapper.style.flex = '1';
+  contentWrapper.appendChild(messageContent);
+  
+  // Add action buttons for assistant messages
+  if (role === 'assistant') {
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'message-actions';
+    
+    // Copy button
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'action-btn';
+    copyBtn.innerHTML = '📋 Copy';
+    copyBtn.onclick = () => {
+      copyToClipboard(content);
+      copyBtn.innerHTML = '✓ Copied';
+      setTimeout(() => {
+        copyBtn.innerHTML = '📋 Copy';
+      }, 2000);
+    };
+    
+    // Speak button
+    const speakBtn = document.createElement('button');
+    speakBtn.className = 'action-btn';
+    speakBtn.innerHTML = '🔊 Speak';
+    speakBtn.onclick = () => {
+      const isSpeaking = speakText(content);
+      if (isSpeaking) {
+        speakBtn.classList.add('speaking');
+        speakBtn.innerHTML = '⏸ Stop';
+      } else {
+        speakBtn.classList.remove('speaking');
+        speakBtn.innerHTML = '🔊 Speak';
+      }
+    };
+    
+    actionsDiv.appendChild(copyBtn);
+    actionsDiv.appendChild(speakBtn);
+    contentWrapper.appendChild(actionsDiv);
+  }
+  
+  message.appendChild(contentWrapper);
   wrapper.appendChild(message);
   chatMessages.appendChild(wrapper);
   
@@ -915,6 +1057,7 @@ function addMessageToDisplay(role, content, animate = true) {
   scrollToBottom();
   return messageContent;
 }
+
 
 function addTypingIndicator() {
   const wrapper = document.createElement('div');
@@ -952,6 +1095,72 @@ function removeTypingIndicator() {
 
 function scrollToBottom() {
   chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+
+// Voice recognition setup
+let recognition = null;
+let isRecording = false;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+  
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    chatInput.value = transcript;
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 200) + 'px';
+  };
+  
+  recognition.onend = () => {
+    isRecording = false;
+    voiceButton.classList.remove('recording');
+  };
+  
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event.error);
+    isRecording = false;
+    voiceButton.classList.remove('recording');
+  };
+}
+
+// Text-to-speech setup
+let currentSpeech = null;
+
+function speakText(text) {
+  // Stop any ongoing speech
+  if (currentSpeech) {
+    window.speechSynthesis.cancel();
+    currentSpeech = null;
+    return false;
+  }
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+  utterance.lang = 'en-US';
+  
+  utterance.onend = () => {
+    currentSpeech = null;
+  };
+  
+  currentSpeech = utterance;
+  window.speechSynthesis.speak(utterance);
+  return true;
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    // Optional: Show copied notification
+    console.log('Copied to clipboard');
+  }).catch(err => {
+    console.error('Failed to copy:', err);
+  });
 }
 
 // ============================================================
@@ -1110,6 +1319,25 @@ window.addEventListener('resize', () => {
     overlay.classList.remove('active');
   }
 });
+
+// Voice button click
+const voiceButton = document.getElementById('voiceButton');
+if (voiceButton && recognition) {
+  voiceButton.addEventListener('click', () => {
+    if (isRecording) {
+      recognition.stop();
+      isRecording = false;
+      voiceButton.classList.remove('recording');
+    } else {
+      recognition.start();
+      isRecording = true;
+      voiceButton.classList.add('recording');
+    }
+  });
+} else if (voiceButton && !recognition) {
+  voiceButton.style.display = 'none'; // Hide if not supported
+}
+
 // ============================================================
 // INITIALIZATION
 // ============================================================
