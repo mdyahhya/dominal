@@ -461,58 +461,40 @@
 
     /* Preview Slides */
     .slide-preview {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 40px !important;  /* WAS 24px → NOW 40px */
-  border-radius: 16px;
-  margin: 20px 0;
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 20px;
-}
+      background: var(--gradient);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-.slide-preview h3 {
-  font-size: 28px !important;  /* WAS 18px → NOW 28px */
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
-  text-align: center;
-}
+    .slide-preview h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      padding-bottom: 10px;
+    }
 
-.slide-preview p {
-  font-size: 18px !important;  /* WAS 13px → NOW 18px */
-  line-height: 1.6;
-  margin: 0;
-  opacity: 0.95;
-  text-align: left;
-}
-
-.title-slide h3 {
-  font-size: 36px !important;  /* Title slide BIGGER */
-  text-align: center !important;
-}
-
-.title-slide p {
-  font-size: 20px !important;  /* Title slide content BIGGER */
-  text-align: center !important;
-}
-
-    /* .slide-preview.title-slide h3 {
+    .slide-preview.title-slide h3 {
       font-size: 28px;
       text-align: center;
       border: none;
       margin: 20px 0;
     }
 
-   
+    .slide-preview p {
+      font-size: 13px;
+      line-height: 1.6;
+      opacity: 0.95;
+    }
 
     .slide-preview.title-slide p {
       text-align: center;
       font-size: 14px;
       margin: 12px 0;
-    } */
+    }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -535,8 +517,6 @@
     }
   </style>
 </head>
-
-
 <body>
   <div class="app-container">
     <!-- Sidebar -->
@@ -626,215 +606,214 @@
     </div>
   </div>
 
- 
   <script>
-  // ==========================================
-  // Configuration & State
-  // ==========================================
-  const API_URL = '/.netlify/functions/ppt-chat';
-  
-  const state = {
-    step: 0,
-    userName: '',
-    topic: '',
-    tone: '',
-    slideCount: 0,
-    pointsChoice: '',
-    points: [],
-    content: {},
-    conversationHistory: []
-  };
+    // ==========================================
+    // Configuration & State
+    // ==========================================
+    const API_URL = '/.netlify/functions/ppt-chat';
+    
+    const state = {
+      step: 0,
+      userName: '',
+      topic: '',
+      tone: '',
+      slideCount: 0,
+      pointsChoice: '',
+      points: [],
+      content: {},
+      conversationHistory: []
+    };
 
-  const statusMessages = {
-    analyzing: ['Analyzing your request', 'Understanding your needs', 'Processing information'],
-    generating: ['Generating slide structure', 'Creating outline', 'Building framework'],
-    content: ['Writing slide content', 'Crafting professional text', 'Humanizing content', 'Polishing language'],
-    pdf: ['Preparing PDF layout', 'Formatting slides', 'Building document', 'Finalizing presentation']
-  };
+    const statusMessages = {
+      analyzing: ['Analyzing your request', 'Understanding your needs', 'Processing information'],
+      generating: ['Generating slide structure', 'Creating outline', 'Building framework'],
+      content: ['Writing slide content', 'Crafting professional text', 'Humanizing content', 'Polishing language'],
+      pdf: ['Preparing PDF layout', 'Formatting slides', 'Building document', 'Finalizing presentation']
+    };
 
-  // ==========================================
-  // DOM Elements
-  // ==========================================
-  const emptyState = document.getElementById('emptyState');
-  const chatMessages = document.getElementById('chatMessages');
-  const chatInput = document.getElementById('chatInput');
-  const sendButton = document.getElementById('sendButton');
+    // ==========================================
+    // DOM Elements
+    // ==========================================
+    const emptyState = document.getElementById('emptyState');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
 
-  // ==========================================
-  // Utility Functions
-  // ==========================================
-  function addMessage(role, content) {
-    emptyState.classList.add('hidden');
-    chatMessages.classList.remove('hidden');
+    // ==========================================
+    // Utility Functions
+    // ==========================================
+    function addMessage(role, content) {
+      emptyState.classList.add('hidden');
+      chatMessages.classList.remove('hidden');
 
-    const wrapper = document.createElement('div');
-    wrapper.className = `message-wrapper ${role}`;
+      const wrapper = document.createElement('div');
+      wrapper.className = `message-wrapper ${role}`;
 
-    const avatar = document.createElement('div');
-    avatar.className = 'message-avatar';
-    avatar.textContent = role === 'user' ? 'Y' : '🤖';
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = role === 'user' ? 'Y' : '🤖';
 
-    const messageContent = document.createElement('div');
-    messageContent.className = 'message-content';
-    messageContent.textContent = content;
+      const messageContent = document.createElement('div');
+      messageContent.className = 'message-content';
+      messageContent.textContent = content;
 
-    wrapper.appendChild(avatar);
-    wrapper.appendChild(messageContent);
-    chatMessages.appendChild(wrapper);
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(messageContent);
+      chatMessages.appendChild(wrapper);
 
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    return messageContent;
-  }
-
-  function addTypingIndicator() {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'message-wrapper assistant';
-    wrapper.id = 'typingIndicator';
-
-    const avatar = document.createElement('div');
-    avatar.className = 'message-avatar';
-    avatar.textContent = '🤖';
-
-    const messageContent = document.createElement('div');
-    messageContent.className = 'message-content';
-    messageContent.innerHTML = `
-      <div class="typing-indicator">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      </div>
-    `;
-
-    wrapper.appendChild(avatar);
-    wrapper.appendChild(messageContent);
-    chatMessages.appendChild(wrapper);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  function removeTypingIndicator() {
-    const indicator = document.getElementById('typingIndicator');
-    if (indicator) indicator.remove();
-  }
-
-  function updateStepStatus(stepNumber, status = 'active') {
-    const step = document.getElementById(`step${stepNumber}`);
-    if (step) {
-      step.classList.remove('active', 'completed');
-      if (status) step.classList.add(status);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return messageContent;
     }
-  }
 
-  function showRandomStatusMessage(category) {
-    const messages = statusMessages[category];
-    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-    const step = document.querySelector('.status-item.active .status-sublabel');
-    if (step) {
-      step.innerHTML = `${randomMsg}<span class="loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>`;
+    function addTypingIndicator() {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'message-wrapper assistant';
+      wrapper.id = 'typingIndicator';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'message-avatar';
+      avatar.textContent = '🤖';
+
+      const messageContent = document.createElement('div');
+      messageContent.className = 'message-content';
+      messageContent.innerHTML = `
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      `;
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(messageContent);
+      chatMessages.appendChild(wrapper);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-  }
 
-  // ==========================================
-  // API Call
-  // ==========================================
-  async function callAI(userMessage, systemPrompt = null) {
-    state.conversationHistory.push({
-      role: 'user',
-      content: userMessage
-    });
-
-    try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: state.conversationHistory,
-          systemPrompt: systemPrompt
-        })
-      });
-
-      if (!response.ok) throw new Error('API Error');
-
-      const data = await response.json();
-      const reply = data.reply;
-
-      state.conversationHistory.push({
-        role: 'assistant',
-        content: reply
-      });
-
-      return reply;
-    } catch (error) {
-      console.error('API Error:', error);
-      return 'Sorry, I encountered an error. Please try again.';
+    function removeTypingIndicator() {
+      const indicator = document.getElementById('typingIndicator');
+      if (indicator) indicator.remove();
     }
-  }
 
-  // ==========================================
-  // Conversation Flow
-  // ==========================================
-  async function handleUserInput(userInput) {
-    const input = userInput.trim().toLowerCase();
-
-    // Step 0: Start
-    if (state.step === 0) {
-      if (input.includes('start') || input.includes('begin') || input.includes('create')) {
-        state.step = 1;
-        updateStepStatus(1, 'active');
-        return "Great! Let's create your presentation. 👋\n\nFirst, what's your name? (It will appear on the title slide)";
-      } else {
-        return "Hi! I'm your AI PPT Maker. Type 'start' when you're ready to create a professional presentation! 🎯";
+    function updateStepStatus(stepNumber, status = 'active') {
+      const step = document.getElementById(`step${stepNumber}`);
+      if (step) {
+        step.classList.remove('active', 'completed');
+        if (status) step.classList.add(status);
       }
     }
 
-    // Step 1: Get Name
-    if (state.step === 1) {
-      state.userName = userInput.trim();
-      state.step = 2;
-      updateStepStatus(1, 'completed');
-      updateStepStatus(2, 'active');
-      return `Nice to meet you, ${state.userName}! 😊\n\nWhat's the topic of your presentation?\n(e.g., "Artificial Intelligence", "Climate Change", "Digital Marketing")`;
+    function showRandomStatusMessage(category) {
+      const messages = statusMessages[category];
+      const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+      const step = document.querySelector('.status-item.active .status-sublabel');
+      if (step) {
+        step.innerHTML = `${randomMsg}<span class="loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>`;
+      }
     }
 
-    // Step 2: Get Topic
-    if (state.step === 2) {
-      state.topic = userInput.trim();
-      state.step = 3;
-      updateStepStatus(2, 'completed');
-      updateStepStatus(3, 'active');
-      return `Excellent topic: "${state.topic}" 📚\n\nWhat tone should the presentation have?\n\n1️⃣ College Seminar (Simple, Student-friendly)\n2️⃣ Technical (In-depth, Professional)\n3️⃣ Business (Executive, Formal)\n4️⃣ Educational (Learning-focused)\n\nType 1, 2, 3, or 4`;
+    // ==========================================
+    // API Call
+    // ==========================================
+    async function callAI(userMessage, systemPrompt = null) {
+      state.conversationHistory.push({
+        role: 'user',
+        content: userMessage
+      });
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: state.conversationHistory,
+            systemPrompt: systemPrompt
+          })
+        });
+
+        if (!response.ok) throw new Error('API Error');
+
+        const data = await response.json();
+        const reply = data.reply;
+
+        state.conversationHistory.push({
+          role: 'assistant',
+          content: reply
+        });
+
+        return reply;
+      } catch (error) {
+        console.error('API Error:', error);
+        return 'Sorry, I encountered an error. Please try again.';
+      }
     }
 
-    // Step 3: Get Tone
-    if (state.step === 3) {
-      const toneMap = {
-        '1': 'college_seminar',
-        '2': 'technical',
-        '3': 'business',
-        '4': 'educational',
-        'college': 'college_seminar',
-        'technical': 'technical',
-        'business': 'business',
-        'educational': 'educational'
-      };
-      
-      state.tone = toneMap[input] || 'college_seminar';
-      state.step = 4;
-      return `Perfect! Using ${state.tone.replace('_', ' ')} tone. 🎯\n\nHow many slides would you like?\n\n1️⃣ 5-7 slides (Quick overview)\n2️⃣ 8-10 slides (Standard)\n3️⃣ 12-15 slides (Detailed)\n4️⃣ 15-20 slides (Comprehensive)\n\nType 1, 2, 3, or 4`;
-    }
+    // ==========================================
+    // Conversation Flow
+    // ==========================================
+    async function handleUserInput(userInput) {
+      const input = userInput.trim().toLowerCase();
 
-    // Step 4: Get Slide Count
-    if (state.step === 4) {
-      const countMap = { '1': 7, '2': 10, '3': 15, '4': 20 };
-      state.slideCount = countMap[input] || 10;
-      state.step = 5;
-      updateStepStatus(3, 'completed');
-      updateStepStatus(4, 'active');
-      
-      addTypingIndicator();
-      showRandomStatusMessage('generating');
+      // Step 0: Start
+      if (state.step === 0) {
+        if (input.includes('start') || input.includes('begin') || input.includes('create')) {
+          state.step = 1;
+          updateStepStatus(1, 'active');
+          return "Great! Let's create your presentation. 👋\n\nFirst, what's your name? (It will appear on the title slide)";
+        } else {
+          return "Hi! I'm your AI PPT Maker. Type 'start' when you're ready to create a professional presentation! 🎯";
+        }
+      }
 
-      // Generate points
-      const pointsPrompt = `Generate exactly ${state.slideCount} presentation slide titles for "${state.topic}". 
+      // Step 1: Get Name
+      if (state.step === 1) {
+        state.userName = userInput.trim();
+        state.step = 2;
+        updateStepStatus(1, 'completed');
+        updateStepStatus(2, 'active');
+        return `Nice to meet you, ${state.userName}! 😊\n\nWhat's the topic of your presentation?\n(e.g., "Artificial Intelligence", "Climate Change", "Digital Marketing")`;
+      }
+
+      // Step 2: Get Topic
+      if (state.step === 2) {
+        state.topic = userInput.trim();
+        state.step = 3;
+        updateStepStatus(2, 'completed');
+        updateStepStatus(3, 'active');
+        return `Excellent topic: "${state.topic}" 📚\n\nWhat tone should the presentation have?\n\n1️⃣ College Seminar (Simple, Student-friendly)\n2️⃣ Technical (In-depth, Professional)\n3️⃣ Business (Executive, Formal)\n4️⃣ Educational (Learning-focused)\n\nType 1, 2, 3, or 4`;
+      }
+
+      // Step 3: Get Tone
+      if (state.step === 3) {
+        const toneMap = {
+          '1': 'college_seminar',
+          '2': 'technical',
+          '3': 'business',
+          '4': 'educational',
+          'college': 'college_seminar',
+          'technical': 'technical',
+          'business': 'business',
+          'educational': 'educational'
+        };
+        
+        state.tone = toneMap[input] || 'college_seminar';
+        state.step = 4;
+        return `Perfect! Using ${state.tone.replace('_', ' ')} tone. 🎯\n\nHow many slides would you like?\n\n1️⃣ 5-7 slides (Quick overview)\n2️⃣ 8-10 slides (Standard)\n3️⃣ 12-15 slides (Detailed)\n4️⃣ 15-20 slides (Comprehensive)\n\nType 1, 2, 3, or 4`;
+      }
+
+      // Step 4: Get Slide Count
+      if (state.step === 4) {
+        const countMap = { '1': 7, '2': 10, '3': 15, '4': 20 };
+        state.slideCount = countMap[input] || 10;
+        state.step = 5;
+        updateStepStatus(3, 'completed');
+        updateStepStatus(4, 'active');
+        
+        addTypingIndicator();
+        showRandomStatusMessage('generating');
+
+        // Generate points
+        const pointsPrompt = `Generate exactly ${state.slideCount} presentation slide titles for "${state.topic}". 
         
 Include:
 - Title/Index slide
@@ -847,263 +826,261 @@ Include:
 
 Return ONLY the slide titles, one per line, no numbering, no extra text.`;
 
-      const pointsResponse = await callAI(pointsPrompt, 'You are a presentation structure expert. Create clear, logical slide titles.');
-      removeTypingIndicator();
+        const pointsResponse = await callAI(pointsPrompt, 'You are a presentation structure expert. Create clear, logical slide titles.');
+        removeTypingIndicator();
 
-      state.points = pointsResponse.split('\n').filter(p => p.trim()).slice(0, state.slideCount);
+        state.points = pointsResponse.split('\n').filter(p => p.trim()).slice(0, state.slideCount);
 
-      updateStepStatus(4, 'active');
-      let pointsList = state.points.map((p, idx) => `${idx + 1}. ${p}`).join('\n');
-      
-      return `I've created a structure with ${state.points.length} slides:\n\n${pointsList}\n\n✏️ Would you like to:\n1️⃣ Use these points (type "yes" or "use these")\n2️⃣ Modify them (type "modify" or "change") \n 3️⃣ Type "Done" to continue`;
-    }
+        updateStepStatus(4, 'active');
+        let pointsList = state.points.map((p, idx) => `${idx + 1}. ${p}`).join('\n');
+        
+        return `I've created a structure with ${state.points.length} slides:\n\n${pointsList}\n\n✏️ Would you like to:\n1️⃣ Use these points (type "yes" or "use these")\n2️⃣ Modify them (type "modify" or "change") \n 3️⃣ Type "Done" to continue`;
+      }
 
-    // Step 5: Confirm or Modify Points
-    if (state.step === 5) {
-      if (input.includes('yes') || input.includes('use') || input.includes('good') || input.includes('ok')) {
-        state.step = 6;
-        return await generateContent();
-      } else if (input.includes('modify') || input.includes('change') || input.includes('edit')) {
-        return `Please list your custom slide titles, one per line. Press Enter after each title, then type "done" when finished.`;
-      } else {
-        // User is listing custom points
-        if (input === 'done') {
+      // Step 5: Confirm or Modify Points
+      if (state.step === 5) {
+        if (input.includes('yes') || input.includes('use') || input.includes('good') || input.includes('ok')) {
           state.step = 6;
           return await generateContent();
+        } else if (input.includes('modify') || input.includes('change') || input.includes('edit')) {
+          return `Please list your custom slide titles, one per line. Press Enter after each title, then type "done" when finished.`;
         } else {
-          // Collecting custom points (simplified for this implementation)
-          return "Got it! Continue adding points, or type 'done' to proceed.";
+          // User is listing custom points
+          if (input === 'done') {
+            state.step = 6;
+            return await generateContent();
+          } else {
+            // Collecting custom points (simplified for this implementation)
+            return "Got it! Continue adding points, or type 'done' to proceed.";
+          }
         }
       }
+
+      // Step 6: Content generated, show preview
+      if (state.step === 6) {
+        return "Your presentation is ready! Check the preview above. Type 'download' to get your PDF! 📥";
+      }
+
+      return "I didn't understand that. Can you try again?";
     }
 
-    // Step 6: Content generated, show preview
-    if (state.step === 6) {
-      return "Your presentation is ready! Check the preview above. Type 'download' to get your PDF! 📥";
-    }
-
-    return "I didn't understand that. Can you try again?";
-  }
-
-  // ==========================================
-  // Generate All Content - MOBILE FRIENDLY + DOUBLE CONTENT
-  // ==========================================
-  async function generateContent() {
-    addTypingIndicator();
-    showRandomStatusMessage('content');
-
-    const statusInterval = setInterval(() => {
+    // ==========================================
+    // Generate All Content
+    // ==========================================
+    async function generateContent() {
+      addTypingIndicator();
       showRandomStatusMessage('content');
-    }, 3000);
 
-    // Generate all content in ONE call - DOUBLE CONTENT + MOBILE FRIENDLY
-    const contentPrompt = `Create professional presentation content for "${state.topic}" with ${state.tone} tone.
+      const statusInterval = setInterval(() => {
+        showRandomStatusMessage('content');
+      }, 3000);
 
-For each of these ${state.points.length} slides, write 4-6 detailed sentences (DOUBLE the normal amount):
+      // Generate all content in ONE call
+      const contentPrompt = `Create professional presentation content for "${state.topic}" with ${state.tone} tone.
+
+For each of these ${state.points.length} slides, write 2-3 clear, concise sentences:
 
 ${state.points.map((p, i) => `Slide ${i + 1}: ${p}`).join('\n')}
 
-Format: Return content for each slide numbered like "Slide 1: [4-6 sentences content]". Make it detailed, engaging, with practical examples, suitable for mobile viewing with larger readable text.`;
+Format: Return content for each slide numbered like "Slide 1: [content]". Keep it simple, humanized, and professional.`;
 
-    try {
-      const allContent = await callAI(contentPrompt, 'You are a professional presentation content creator. Write clear, engaging, humanized content suitable for slides with larger mobile-friendly text.');
-      
-      clearInterval(statusInterval);
-      removeTypingIndicator();
-
-      // Parse content
-      const slides = allContent.split(/Slide \d+:/i).filter(s => s.trim());
-      slides.forEach((content, idx) => {
-        state.content[idx] = content.trim();
-      });
-
-      updateStepStatus(4, 'completed');
-      updateStepStatus(5, 'active');
-      state.step = 6;
-
-      // Show preview
-      showPreview();
-
-      return `✅ Your presentation is ready!\n\n📊 ${state.points.length + 1} slides created\n🎨 Professional design applied\n✨ Content humanized and polished\n\nScroll up to preview all slides, then type 'download' to get your PDF! 📥`;
-
-    } catch (error) {
-      clearInterval(statusInterval);
-      removeTypingIndicator();
-      return 'Sorry, there was an error generating content. Please try again.';
-    }
-  }
-
-  // ==========================================
-  // Show Preview - MOBILE FRIENDLY
-  // ==========================================
-  function showPreview() {
-    // Title slide
-    const titleSlide = document.createElement('div');
-    titleSlide.className = 'slide-preview title-slide';
-    titleSlide.innerHTML = `
-      <h3 style="font-size: 36px !important; text-align: center !important;">${state.topic}</h3>
-      <p style="font-size: 20px !important; text-align: center !important;">A Presentation</p>
-      <p style="font-size: 20px !important; text-align: center !important;">By ${state.userName}</p>
-      <p style="margin-top: 30px; font-size: 14px; text-align: center;">AI PPT Maker by Yahya</p>
-    `;
-    chatMessages.appendChild(titleSlide);
-
-    // Content slides - LARGER TEXT
-    state.points.forEach((point, idx) => {
-      const slide = document.createElement('div');
-      slide.className = 'slide-preview';
-      slide.innerHTML = `
-        <h3 style="font-size: 28px !important; font-weight: 700; margin: 0; line-height: 1.2; text-align: center;">${point}</h3>
-        <div style="font-size: 18px !important; line-height: 1.6; margin: 20px 0 0 0; opacity: 0.95; text-align: left;">${state.content[idx] || 'Content generating...'}</div>
-      `;
-      chatMessages.appendChild(slide);
-    });
-
-    // Download button
-    const actionDiv = document.createElement('div');
-    actionDiv.className = 'action-buttons';
-    actionDiv.innerHTML = `
-      <button class="btn btn-secondary" onclick="location.reload()">🔄 Start Over</button>
-      <button class="btn btn-primary" onclick="downloadPDF()">📥 Download PDF</button>
-    `;
-    chatMessages.appendChild(actionDiv);
-
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  // ==========================================
-  // PDF Generation - LARGER FONTS + BETTER SPACING
-  // ==========================================
-  async function downloadPDF() {
-    addMessage('assistant', 'Creating your PDF... This will take a moment! ⏳');
-    
-    const statusInterval = setInterval(() => {
-      showRandomStatusMessage('pdf');
-    }, 2000);
-
-    try {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 15;
-      const textWidth = pageWidth - 2 * margin;
-
-      // Title Slide - BIGGER FONTS
-      doc.setFillColor(102, 126, 234);
-      doc.rect(0, 0, pageWidth, pageHeight, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(48);  // WAS 36 → NOW 48
-      const titleLines = doc.splitTextToSize(state.topic, textWidth - 20);
-      doc.text(titleLines, pageWidth / 2, pageHeight / 3, { align: 'center' });
-
-      doc.setFontSize(22);  // WAS 18 → NOW 22
-      doc.setFont('Helvetica', 'normal');
-      doc.text('A Presentation', pageWidth / 2, pageHeight / 2, { align: 'center' });
-
-      doc.setFontSize(20);  // WAS 16 → NOW 20
-      doc.text(`By ${state.userName}`, pageWidth / 2, pageHeight / 2 + 25, { align: 'center' });
-
-      doc.setFontSize(14);  // WAS 11 → NOW 14
-      doc.text('AI PPT Maker by Yahya', pageWidth / 2, pageHeight - 25, { align: 'center' });
-
-      // Content Slides - BIGGER FONTS + BETTER SPACING
-      state.points.forEach((point, idx) => {
-        doc.addPage();
+      try {
+        const allContent = await callAI(contentPrompt, 'You are a professional presentation content creator. Write clear, engaging, humanized content suitable for slides.');
         
-        // Header
+        clearInterval(statusInterval);
+        removeTypingIndicator();
+
+        // Parse content
+        const slides = allContent.split(/Slide \d+:/i).filter(s => s.trim());
+        slides.forEach((content, idx) => {
+          state.content[idx] = content.trim();
+        });
+
+        updateStepStatus(4, 'completed');
+        updateStepStatus(5, 'active');
+        state.step = 6;
+
+        // Show preview
+        showPreview();
+
+        return `✅ Your presentation is ready!\n\n📊 ${state.points.length + 1} slides created\n🎨 Professional design applied\n✨ Content humanized and polished\n\nScroll up to preview all slides, then type 'download' to get your PDF! 📥`;
+
+      } catch (error) {
+        clearInterval(statusInterval);
+        removeTypingIndicator();
+        return 'Sorry, there was an error generating content. Please try again.';
+      }
+    }
+
+    // ==========================================
+    // Show Preview
+    // ==========================================
+    function showPreview() {
+      // Title slide
+      const titleSlide = document.createElement('div');
+      titleSlide.className = 'slide-preview title-slide';
+      titleSlide.innerHTML = `
+        <h3>${state.topic}</h3>
+        <p>A Presentation</p>
+        <p>By ${state.userName}</p>
+        <p style="margin-top: 30px; font-size: 12px;">AI PPT Maker by Yahya</p>
+      `;
+      chatMessages.appendChild(titleSlide);
+
+      // Content slides
+      state.points.forEach((point, idx) => {
+        const slide = document.createElement('div');
+        slide.className = 'slide-preview';
+        slide.innerHTML = `
+          <h3>${point}</h3>
+          <p>${state.content[idx] || 'Content generating...'}</p>
+        `;
+        chatMessages.appendChild(slide);
+      });
+
+      // Download button
+      const actionDiv = document.createElement('div');
+      actionDiv.className = 'action-buttons';
+      actionDiv.innerHTML = `
+        <button class="btn btn-secondary" onclick="location.reload()">🔄 Start Over</button>
+        <button class="btn btn-primary" onclick="downloadPDF()">📥 Download PDF</button>
+      `;
+      chatMessages.appendChild(actionDiv);
+
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // ==========================================
+    // PDF Generation
+    // ==========================================
+    async function downloadPDF() {
+      addMessage('assistant', 'Creating your PDF... This will take a moment! ⏳');
+      
+      const statusInterval = setInterval(() => {
+        showRandomStatusMessage('pdf');
+      }, 2000);
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 15;
+        const textWidth = pageWidth - 2 * margin;
+
+        // Title Slide
         doc.setFillColor(102, 126, 234);
-        doc.rect(0, 0, pageWidth, 40, 'F');  // TALLER HEADER
+        doc.rect(0, 0, pageWidth, pageHeight, 'F');
         
         doc.setTextColor(255, 255, 255);
-        doc.setFontSize(24);  // WAS 18 → NOW 24
         doc.setFont('Helvetica', 'bold');
-        const pointLines = doc.splitTextToSize(point, textWidth);
-        doc.text(pointLines, margin, 28);
-        
-        // Content - BIGGER FONT + MORE SPACE
-        doc.setTextColor(50, 50, 50);
-        doc.setFontSize(16);  // WAS 12 → NOW 16
+        doc.setFontSize(36);
+        doc.text(state.topic, pageWidth / 2, pageHeight / 3, { align: 'center', maxWidth: textWidth - 20 });
+
+        doc.setFontSize(18);
         doc.setFont('Helvetica', 'normal');
+        doc.text('A Presentation', pageWidth / 2, pageHeight / 2, { align: 'center' });
+
+        doc.setFontSize(16);
+        doc.text(`By ${state.userName}`, pageWidth / 2, pageHeight / 2 + 20, { align: 'center' });
+
+        doc.setFontSize(11);
+        doc.text('AI PPT Maker by Yahya', pageWidth / 2, pageHeight - 25, { align: 'center' });
+
+        // Content Slides
+        state.points.forEach((point, idx) => {
+          doc.addPage();
+          
+          // Header
+          doc.setFillColor(102, 126, 234);
+          doc.rect(0, 0, pageWidth, 35, 'F');
+          
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(18);
+          doc.setFont('Helvetica', 'bold');
+          const titleLines = doc.splitTextToSize(point, textWidth);
+          doc.text(titleLines, margin, 22);
+          
+          // Content
+          doc.setTextColor(50, 50, 50);
+          doc.setFontSize(12);
+          doc.setFont('Helvetica', 'normal');
+          
+          const content = state.content[idx] || '';
+          const contentLines = doc.splitTextToSize(content, textWidth);
+          doc.text(contentLines, margin, 50);
+          
+          // Footer
+          doc.setFontSize(9);
+          doc.setTextColor(150, 150, 150);
+          doc.text(`Slide ${idx + 2} of ${state.points.length + 1}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        });
+
+        clearInterval(statusInterval);
+
+        // Download
+        const fileName = `${state.topic.replace(/\s+/g, '_')}_by_${state.userName.replace(/\s+/g, '_')}.pdf`;
+        doc.save(fileName);
         
-        const content = state.content[idx] || '';
-        const contentLines = doc.splitTextToSize(content, textWidth);
-        doc.text(contentLines, margin, 55);  // MORE SPACE (WAS 50)
-        
-        // Footer
-        doc.setFontSize(11);  // WAS 9 → NOW 11
-        doc.setTextColor(150, 150, 150);
-        doc.text(`Slide ${idx + 2} of ${state.points.length + 1}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
-      });
+        addMessage('assistant', `✅ PDF downloaded successfully!\n\n📄 Filename: ${fileName}\n📊 Total slides: ${state.points.length + 1}\n\nEnjoy your presentation! 🎉`);
 
-      clearInterval(statusInterval);
-
-      // Download
-      const fileName = `${state.topic.replace(/\s+/g, '_')}_by_${state.userName.replace(/\s+/g, '_')}.pdf`;
-      doc.save(fileName);
-      
-      addMessage('assistant', `✅ PDF downloaded successfully!\n\n📄 Filename: ${fileName}\n📊 Total slides: ${state.points.length + 1}\n\nEnjoy your presentation! 🎉`);
-
-    } catch (error) {
-      clearInterval(statusInterval);
-      console.error('PDF Error:', error);
-      addMessage('assistant', '❌ Error creating PDF. Please try again.');
+      } catch (error) {
+        clearInterval(statusInterval);
+        console.error('PDF Error:', error);
+        addMessage('assistant', '❌ Error creating PDF. Please try again.');
+      }
     }
-  }
 
-  // ==========================================
-  // Event Listeners
-  // ==========================================
-  sendButton.addEventListener('click', async () => {
-    const userInput = chatInput.value.trim();
-    if (!userInput) return;
+    // ==========================================
+    // Event Listeners
+    // ==========================================
+    sendButton.addEventListener('click', async () => {
+      const userInput = chatInput.value.trim();
+      if (!userInput) return;
 
-    addMessage('user', userInput);
-    chatInput.value = '';
-    sendButton.disabled = true;
+      addMessage('user', userInput);
+      chatInput.value = '';
+      sendButton.disabled = true;
 
-    if (userInput.toLowerCase() === 'download' && state.step === 6) {
-      await downloadPDF();
+      if (userInput.toLowerCase() === 'download' && state.step === 6) {
+        await downloadPDF();
+        sendButton.disabled = false;
+        return;
+      }
+
+      addTypingIndicator();
+      const response = await handleUserInput(userInput);
+      removeTypingIndicator();
+
+      addMessage('assistant', response);
       sendButton.disabled = false;
-      return;
-    }
+      chatInput.focus();
+    });
 
-    addTypingIndicator();
-    const response = await handleUserInput(userInput);
-    removeTypingIndicator();
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendButton.click();
+      }
+    });
 
-    addMessage('assistant', response);
-    sendButton.disabled = false;
-    chatInput.focus();
-  });
+    // Auto-resize textarea
+    chatInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+    });
 
-  chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendButton.click();
-    }
-  });
-
-  // Auto-resize textarea
-  chatInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 200) + 'px';
-  });
-
-  // Initial greeting
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      addMessage('assistant', "👋 Hi! I'm your AI PPT Maker Agent.\n\nI'll help you create a professional presentation in minutes!\n\nType 'start' when you're ready to begin. 🚀");
-    }, 500);
-  });
-</script>
-
+    // Initial greeting
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        addMessage('assistant', "👋 Hi! I'm your AI PPT Maker Agent.\n\nI'll help you create a professional presentation in minutes!\n\nType 'start' when you're ready to begin. 🚀");
+      }, 500);
+    });
+  </script>
 </body>
 </html>
