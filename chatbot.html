@@ -654,13 +654,13 @@ body {
   display: flex;
   gap: 8px;
   margin-top: 8px;
-  opacity: 0;
+  opacity: 1;  /* Changed from 0 to 1 */
   transition: opacity 0.2s;
 }
-
+/* 
 .message-wrapper.assistant:hover .message-actions {
   opacity: 1;
-}
+} */
 
 .action-btn {
   background: var(--bg-secondary);
@@ -1026,16 +1026,17 @@ function addMessageToDisplay(role, content, animate = true) {
     const speakBtn = document.createElement('button');
     speakBtn.className = 'action-btn';
     speakBtn.innerHTML = '🔊 Speak';
-    speakBtn.onclick = () => {
-      const isSpeaking = speakText(content);
-      if (isSpeaking) {
-        speakBtn.classList.add('speaking');
-        speakBtn.innerHTML = '⏸ Stop';
-      } else {
-        speakBtn.classList.remove('speaking');
-        speakBtn.innerHTML = '🔊 Speak';
-      }
-    };
+   speakBtn.onclick = () => {
+  const isSpeaking = speakText(content, speakBtn);  // Pass speakBtn
+  if (isSpeaking) {
+    speakBtn.classList.add('speaking');
+    speakBtn.innerHTML = '⏸ Stop';
+  } else {
+    speakBtn.classList.remove('speaking');
+    speakBtn.innerHTML = '🔊 Speak';
+  }
+};
+
     
     actionsDiv.appendChild(copyBtn);
     actionsDiv.appendChild(speakBtn);
@@ -1131,11 +1132,15 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 // Text-to-speech setup
 let currentSpeech = null;
 
-function speakText(text) {
+function speakText(text, button) {
   // Stop any ongoing speech
   if (currentSpeech) {
     window.speechSynthesis.cancel();
     currentSpeech = null;
+    if (button) {
+      button.classList.remove('speaking');
+      button.innerHTML = '🔊 Speak';
+    }
     return false;
   }
   
@@ -1147,12 +1152,17 @@ function speakText(text) {
   
   utterance.onend = () => {
     currentSpeech = null;
+    if (button) {
+      button.classList.remove('speaking');
+      button.innerHTML = '🔊 Speak';
+    }
   };
   
   currentSpeech = utterance;
   window.speechSynthesis.speak(utterance);
   return true;
 }
+
 
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
