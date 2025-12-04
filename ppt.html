@@ -626,6 +626,7 @@
     </div>
   </div>
 
+ 
   <script>
     // ==========================================
     // Configuration & State
@@ -896,42 +897,40 @@ Return ONLY the slide titles, one per line, no numbering, no extra text.`;
       }, 3000);
 
       // Generate all content in ONE call
-     // Generate all content in ONE call - MOBILE-FRIENDLY + DOUBLE CONTENT
-const contentPrompt = `Create professional presentation content for "${state.topic}" with ${state.tone} tone.
+      const contentPrompt = `Create professional presentation content for "${state.topic}" with ${state.tone} tone.
 
-For each of these ${state.points.length} slides, write 4-6 detailed sentences (DOUBLE the normal amount):
+For each of these ${state.points.length} slides, write 2-3 clear, concise sentences:
 
 ${state.points.map((p, i) => `Slide ${i + 1}: ${p}`).join('\n')}
 
-Format: Return content for each slide numbered like "Slide 1: [4-6 sentences content]". Make it detailed, engaging, with practical examples, suitable for mobile viewing with larger readable text.`;
+Format: Return content for each slide numbered like "Slide 1: [content]". Keep it simple, humanized, and professional.`;
 
-try {
-  const allContent = await callAI(contentPrompt, 'You are a professional presentation content creator. Write clear, engaging, humanized content suitable for slides with larger mobile-friendly text.');
-  
-  clearInterval(statusInterval);
-  removeTypingIndicator();
+      try {
+        const allContent = await callAI(contentPrompt, 'You are a professional presentation content creator. Write clear, engaging, humanized content suitable for slides.');
+        
+        clearInterval(statusInterval);
+        removeTypingIndicator();
 
-  // Parse content
-  const slides = allContent.split(/Slide \d+:/i).filter(s => s.trim());
-  slides.forEach((content, idx) => {
-    state.content[idx] = content.trim();
-  });
+        // Parse content
+        const slides = allContent.split(/Slide \d+:/i).filter(s => s.trim());
+        slides.forEach((content, idx) => {
+          state.content[idx] = content.trim();
+        });
 
-  updateStepStatus(4, 'completed');
-  updateStepStatus(5, 'active');
-  state.step = 6;
+        updateStepStatus(4, 'completed');
+        updateStepStatus(5, 'active');
+        state.step = 6;
 
-  // Show preview - MOBILE FRIENDLY
-  showPreview();
+        // Show preview
+        showPreview();
 
-  return `✅ Your presentation is ready!\n\n📊 ${state.points.length + 1} slides created\n🎨 Professional design applied\n✨ Content humanized and polished\n\nScroll up to preview all slides, then type 'download' to get your PDF! 📥`;
+        return `✅ Your presentation is ready!\n\n📊 ${state.points.length + 1} slides created\n🎨 Professional design applied\n✨ Content humanized and polished\n\nScroll up to preview all slides, then type 'download' to get your PDF! 📥`;
 
-} catch (error) {
-  clearInterval(statusInterval);
-  removeTypingIndicator();
-  return 'Sorry, there was an error generating content. Please try again.';
-}
-
+      } catch (error) {
+        clearInterval(statusInterval);
+        removeTypingIndicator();
+        return 'Sorry, there was an error generating content. Please try again.';
+      }
     }
 
     // ==========================================
@@ -953,11 +952,10 @@ try {
       state.points.forEach((point, idx) => {
         const slide = document.createElement('div');
         slide.className = 'slide-preview';
-       slide.innerHTML = `
-  <h3>${point}</h3>
-  <div style="font-size: 18px; line-height: 1.6;">${state.content[idx] || 'Content generating...'}</div>
-`;
-
+        slide.innerHTML = `
+          <h3>${point}</h3>
+          <p>${state.content[idx] || 'Content generating...'}</p>
+        `;
         chatMessages.appendChild(slide);
       });
 
@@ -1002,14 +1000,14 @@ try {
         
         doc.setTextColor(255, 255, 255);
         doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(48);
+        doc.setFontSize(36);
         doc.text(state.topic, pageWidth / 2, pageHeight / 3, { align: 'center', maxWidth: textWidth - 20 });
 
-        doc.setFontSize(22);
+        doc.setFontSize(18);
         doc.setFont('Helvetica', 'normal');
         doc.text('A Presentation', pageWidth / 2, pageHeight / 2, { align: 'center' });
 
-        doc.setFontSize(20);
+        doc.setFontSize(16);
         doc.text(`By ${state.userName}`, pageWidth / 2, pageHeight / 2 + 20, { align: 'center' });
 
         doc.setFontSize(11);
@@ -1024,19 +1022,19 @@ try {
           doc.rect(0, 0, pageWidth, 35, 'F');
           
           doc.setTextColor(255, 255, 255);
-          doc.setFontSize(24);
+          doc.setFontSize(18);
           doc.setFont('Helvetica', 'bold');
           const titleLines = doc.splitTextToSize(point, textWidth);
           doc.text(titleLines, margin, 22);
           
           // Content
           doc.setTextColor(50, 50, 50);
-          doc.setFontSize(16);
+          doc.setFontSize(12);
           doc.setFont('Helvetica', 'normal');
           
           const content = state.content[idx] || '';
           const contentLines = doc.splitTextToSize(content, textWidth);
-          doc.text(contentLines, margin, 55);
+          doc.text(contentLines, margin, 50);
           
           // Footer
           doc.setFontSize(9);
@@ -1105,5 +1103,6 @@ try {
       }, 500);
     });
   </script>
+
 </body>
 </html>
