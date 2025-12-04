@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI PPT Maker Agent by Yahya</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f7f7f8;
+      --bg-dark: #0f172a;
+      --text-primary: #353740;
+      --text-secondary: #6e6e80;
+      --text-light: #ececf1;
+      --border-color: #d9d9e3;
+      --accent-color: #10a37f;
+      --accent-hover: #0d8f6f;
+      --danger-color: #ef4444;
+      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 40px 20px;
+      background: var(--gradient);
+      color: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .header h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: clamp(14px, 2.5vw, 18px);
+      opacity: 0.95;
+      font-weight: 300;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-top: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Main Content */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+
+    /* Input Section */
+    .input-section {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    textarea.form-input {
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--border-color);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Status Section */
+    .status-section {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+
+    .status-item.active {
+      background: rgba(16, 163, 127, 0.1);
+      border: 1px solid var(--accent-color);
+    }
+
+    .status-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      background: white;
+    }
+
+    .status-item.active .status-icon {
+      background: var(--accent-color);
+      color: white;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .status-text {
+      flex: 1;
+    }
+
+    .status-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .status-sublabel {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Loading Animation */
+    .loading-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-color);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+      30% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    /* Options Section */
+    .options-section {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      display: none;
+    }
+
+    .options-section.active {
+      display: block;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-card {
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .option-card:hover {
+      border-color: var(--accent-color);
+      background: rgba(16, 163, 127, 0.05);
+    }
+
+    .option-card.selected {
+      border-color: var(--accent-color);
+      background: rgba(16, 163, 127, 0.1);
+    }
+
+    .option-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .option-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .option-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Points Input */
+    .points-input-group {
+      margin-bottom: 20px;
+    }
+
+    .points-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .point-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .point-input-row input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .point-input-row input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.1);
+    }
+
+    .point-remove-btn {
+      background: var(--danger-color);
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .point-remove-btn:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+
+    .add-point-btn {
+      width: 100%;
+      padding: 10px;
+      border: 1px dashed var(--accent-color);
+      background: rgba(16, 163, 127, 0.05);
+      color: var(--accent-color);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .add-point-btn:hover {
+      background: rgba(16, 163, 127, 0.1);
+    }
+
+    /* Preview Section */
+    .preview-section {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      display: none;
+    }
+
+    .preview-section.active {
+      display: block;
+      animation: slideUp 0.4s ease;
+    }
+
+    .preview-content {
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 12px;
+    }
+
+    .slide-preview {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+    }
+
+    .slide-preview h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      padding-bottom: 12px;
+    }
+
+    .slide-preview p {
+      font-size: 13px;
+      line-height: 1.6;
+      opacity: 0.95;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+      margin-top: 40px;
+    }
+
+    .footer p {
+      font-size: 12px;
+      margin: 4px 0;
+    }
+
+    .creator-badge {
+      display: inline-block;
+      background: var(--gradient);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 12px;
+      }
+
+      .input-section,
+      .status-section,
+      .options-section,
+      .preview-section {
+        padding: 20px;
+      }
+
+      .header {
+        padding: 30px 15px;
+      }
+
+      .button-group {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Hidden utility */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Success animation */
+    @keyframes successPulse {
+      0% { transform: scale(0.8); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-message {
+      background: rgba(16, 163, 127, 0.1);
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: successPulse 0.5s ease;
+    }
+
+    .success-message svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Error message */
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--danger-color);
+      color: var(--danger-color);
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Loading bar */
+    .loading-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--bg-secondary);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+
+    .loading-bar-fill {
+      height: 100%;
+      background: var(--gradient);
+      animation: loading 2s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+      0% { width: 0%; }
+      50% { width: 100%; }
+      100% { width: 0%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>✨ AI PPT Maker Agent</h1>
+      <p>Transform your ideas into professional presentations instantly</p>
+      <div class="header-badge">Powered by Groq AI • Built by Yahya</div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Left: Input Section -->
+      <div>
+        <div class="input-section">
+          <h2 class="section-title">📝 Create Your Presentation</h2>
+          
+          <form id="pptForm">
+            <!-- User Name -->
+            <div class="form-group">
+              <label class="form-label">Your Name (will appear on title slide)</label>
+              <input type="text" class="form-input" id="userName" placeholder="Enter your name" required>
+            </div>
+
+            <!-- Topic -->
+            <div class="form-group">
+              <label class="form-label">Presentation Topic</label>
+              <input type="text" class="form-input" id="topic" placeholder="e.g., Artificial Intelligence, Cloud Computing, etc." required>
+            </div>
+
+            <!-- Tone -->
+            <div class="form-group">
+              <label class="form-label">Tone & Level</label>
+              <select class="form-select" id="tone" required>
+                <option value="">Select tone...</option>
+                <option value="college_seminar">College Seminar (Simple, Professional)</option>
+                <option value="technical">Technical (In-depth, Professional)</option>
+                <option value="business">Business (Executive, Formal)</option>
+                <option value="educational">Educational (Learning-focused)</option>
+              </select>
+            </div>
+
+            <!-- Number of Slides -->
+            <div class="form-group">
+              <label class="form-label">Estimated Slides</label>
+              <select class="form-select" id="slideCount" required>
+                <option value="5">5-7 slides (Quick overview)</option>
+                <option value="8">8-10 slides (Standard)</option>
+                <option value="12">12-15 slides (Detailed)</option>
+                <option value="20">15-20 slides (Comprehensive)</option>
+              </select>
+            </div>
+
+            <!-- Additional Notes -->
+            <div class="form-group">
+              <label class="form-label">Additional Notes (Optional)</label>
+              <textarea class="form-input" id="notes" placeholder="Add any specific points or requirements..."></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+              <button type="button" class="btn btn-secondary" id="resetBtn">Clear Form</button>
+              <button type="submit" class="btn btn-primary" id="analyzeBtn">
+                <span>🚀 Next Step</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: Status Section -->
+      <div>
+        <div class="status-section">
+          <h2 class="section-title">📊 Process Status</h2>
+
+          <div class="status-item">
+            <div class="status-icon">1</div>
+            <div class="status-text">
+              <div class="status-label">Topic Entered</div>
+              <div class="status-sublabel" id="status1">Fill in your topic details</div>
+            </div>
+          </div>
+
+          <div class="status-item" id="statusItem2">
+            <div class="status-icon">2</div>
+            <div class="status-text">
+              <div class="status-label">Points Selection</div>
+              <div class="status-sublabel">Choose auto or custom points <span class="loading-dots" id="dots2"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+            </div>
+          </div>
+
+          <div class="status-item" id="statusItem3">
+            <div class="status-icon">3</div>
+            <div class="status-text">
+              <div class="status-label">Content Generation</div>
+              <div class="status-sublabel">AI creating humanized content <span class="loading-dots" id="dots3"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+            </div>
+          </div>
+
+          <div class="status-item" id="statusItem4">
+            <div class="status-icon">4</div>
+            <div class="status-text">
+              <div class="status-label">PDF Creation</div>
+              <div class="status-sublabel">Building professional PDF <span class="loading-dots" id="dots4"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+            </div>
+          </div>
+
+          <div class="status-item" id="statusItem5">
+            <div class="status-icon">✓</div>
+            <div class="status-text">
+              <div class="status-label">Ready for Download</div>
+              <div class="status-sublabel">Your PPT is ready!</div>
+            </div>
+          </div>
+
+          <div id="messageBox"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options Section -->
+    <div class="options-section" id="optionsSection">
+      <h2 class="section-title">🎯 Choose Your Presentation Style</h2>
+      
+      <p style="margin-bottom: 20px; color: var(--text-secondary); font-size: 14px;">
+        Would you like us to auto-generate the points or would you prefer to customize them?
+      </p>
+
+      <div class="options-grid">
+        <div class="option-card" id="autoOption" data-choice="auto">
+          <div class="option-icon">🤖</div>
+          <div class="option-title">AI Auto-Generate</div>
+          <div class="option-desc">Let AI create points for your topic</div>
+        </div>
+
+        <div class="option-card" id="customOption" data-choice="custom">
+          <div class="option-icon">✏️</div>
+          <div class="option-title">Custom Points</div>
+          <div class="option-desc">Specify your own presentation points</div>
+        </div>
+      </div>
+
+      <!-- Auto Generated Points Display -->
+      <div id="autoPointsContainer" class="hidden">
+        <h3 style="margin: 20px 0 16px; font-size: 16px; font-weight: 600;">AI Generated Points</h3>
+        <div id="autoPointsList" class="points-list"></div>
+      </div>
+
+      <!-- Custom Points Input -->
+      <div id="customPointsContainer" class="hidden">
+        <h3 style="margin: 20px 0 16px; font-size: 16px; font-weight: 600;">Customize Your Points</h3>
+        <div class="points-input-group">
+          <div class="points-list" id="customPointsList"></div>
+          <button type="button" class="add-point-btn" id="addPointBtn">+ Add Point</button>
+        </div>
+      </div>
+
+      <div class="button-group" style="margin-top: 24px;">
+        <button type="button" class="btn btn-secondary" id="backBtn">← Back</button>
+        <button type="button" class="btn btn-primary" id="continueBtn" disabled>
+          <span>Continue to Content →</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="preview-section" id="previewSection">
+      <h2 class="section-title">👁️ Preview Your Content</h2>
+      
+      <div id="previewMessage"></div>
+      <div id="previewContent" class="preview-content"></div>
+
+      <div class="action-buttons">
+        <button type="button" class="btn btn-secondary" id="editBtn">← Edit Content</button>
+        <button type="button" class="btn btn-primary" id="downloadBtn">
+          <span>📥 Download PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>🎨 AI PPT Maker Agent - Professional Presentation Generator</p>
+      <p>Powered by Dominal AI v2.5 • Designed for Students & Professionals</p>
+      <div class="creator-badge">Created by Yahya Mundewadi © 2025</div>
+    </div>
+  </div>
+
+  <!-- Hidden container for PDF generation -->
+  <div id="pdfContainer" style="display: none; position: absolute; left: -9999px; top: -9999px;"></div>
+
+  <script>
+    // ============================================
+    // Configuration & State Management
+    // ============================================
+   // Use same Netlify function as chatbot
+const API_URL = '/.netlify/functions/chat'; // Your existing backend
+
+async function callGroqAPI(prompt) {
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a professional presentation creator. Create clear, concise, and humanized content for college seminars. Use simple language and structure content beautifully.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'API Error');
+    }
+
+    const data = await response.json();
+    return data.reply; // Your backend returns {reply: "..."}
+  } catch (error) {
+    console.error('API Error:', error);
+    showMessage('Error connecting to AI. Please try again.', 'error');
+    throw error;
+  }
+}
+
+    // State
+    const state = {
+      topic: '',
+      userName: '',
+      tone: '',
+      slideCount: 5,
+      notes: '',
+      choice: null,
+      points: [],
+      content: {},
+      currentStep: 1
+    };
+
+    // ============================================
+    // DOM Elements
+    // ============================================
+    const form = document.getElementById('pptForm');
+    const topicInput = document.getElementById('topic');
+    const userNameInput = document.getElementById('userName');
+    const toneSelect = document.getElementById('tone');
+    const slideCountSelect = document.getElementById('slideCount');
+    const notesInput = document.getElementById('notes');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const messageBox = document.getElementById('messageBox');
+    
+    const optionsSection = document.getElementById('optionsSection');
+    const autoOption = document.getElementById('autoOption');
+    const customOption = document.getElementById('customOption');
+    const autoPointsContainer = document.getElementById('autoPointsContainer');
+    const customPointsContainer = document.getElementById('customPointsContainer');
+    const autoPointsList = document.getElementById('autoPointsList');
+    const customPointsList = document.getElementById('customPointsList');
+    const addPointBtn = document.getElementById('addPointBtn');
+    const backBtn = document.getElementById('backBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    
+    const previewSection = document.getElementById('previewSection');
+    const previewContent = document.getElementById('previewContent');
+    const previewMessage = document.getElementById('previewMessage');
+    const editBtn = document.getElementById('editBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // ============================================
+    // Utility Functions
+    // ============================================
+    function showMessage(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `${type}-message`;
+      if (type === 'success') {
+        div.innerHTML = `<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>${message}`;
+      } else if (type === 'error') {
+        div.innerHTML = `<svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>${message}`;
+      } else {
+        div.innerHTML = message;
+      }
+      messageBox.innerHTML = '';
+      messageBox.appendChild(div);
+    }
+
+    function updateStatusItem(itemNumber, isActive = false) {
+      const item = document.getElementById(`statusItem${itemNumber}`);
+      if (item) {
+        if (isActive) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      }
+    }
+
+    function showSection(sectionElement) {
+      optionsSection.classList.remove('active');
+      previewSection.classList.remove('active');
+      if (sectionElement) {
+        sectionElement.classList.add('active');
+      }
+    }
+
+   
+
+    // ============================================
+    // Step 1: Analyze Topic
+    // ============================================
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      state.topic = topicInput.value.trim();
+      state.userName = userNameInput.value.trim();
+      state.tone = toneSelect.value;
+      state.slideCount = slideCountSelect.value;
+      state.notes = notesInput.value.trim();
+
+      if (!state.topic || !state.userName) {
+        showMessage('Please fill in all required fields', 'error');
+        return;
+      }
+
+      analyzeBtn.disabled = true;
+      showMessage('Analyzing your topic<span class="loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>', 'info');
+      updateStatusItem(2, true);
+
+      try {
+        // Generate points from topic
+        const pointsPrompt = `Generate ${state.slideCount} main presentation points for "${state.topic}". Start with Index/Title, then Introduction, main points about the topic, Usage, Advantages, Future Scope, and Conclusion. List each as a single line. Return only the list, no numbering, just one point per line.`;
+        
+        const pointsResponse = await callGroqAPI(pointsPrompt);
+        state.points = pointsResponse.split('\n').filter(p => p.trim());
+
+        updateStatusItem(2, false);
+        showSection(optionsSection);
+        analyzeBtn.disabled = false;
+        showMessage('Topic analyzed! Now choose your presentation style.', 'success');
+      } catch (error) {
+        analyzeBtn.disabled = false;
+        updateStatusItem(2, false);
+      }
+    });
+
+    // ============================================
+    // Step 2: Choose Points Option
+    // ============================================
+    autoOption.addEventListener('click', () => {
+      state.choice = 'auto';
+      autoOption.classList.add('selected');
+      customOption.classList.remove('selected');
+      
+      autoPointsContainer.classList.remove('hidden');
+      customPointsContainer.classList.add('hidden');
+      
+      // Display auto points
+      autoPointsList.innerHTML = state.points.map((point, idx) => 
+        `<div class="status-item" style="cursor: default; background: white; border: 1px solid var(--border-color);">
+          <div class="status-icon" style="background: var(--accent-color); color: white;">${idx + 1}</div>
+          <div class="status-text"><div class="status-label">${point}</div></div>
+        </div>`
+      ).join('');
+      
+      continueBtn.disabled = false;
+    });
+
+    customOption.addEventListener('click', () => {
+      state.choice = 'custom';
+      customOption.classList.add('selected');
+      autoOption.classList.remove('selected');
+      
+      customPointsContainer.classList.remove('hidden');
+      autoPointsContainer.classList.add('hidden');
+      
+      // Initialize custom points input
+      if (customPointsList.innerHTML === '') {
+        state.points.forEach((point, idx) => {
+          addCustomPointRow(point, idx);
+        });
+      }
+      
+      continueBtn.disabled = false;
+    });
+
+    function addCustomPointRow(value = '', index = -1) {
+      const row = document.createElement('div');
+      row.className = 'point-input-row';
+      row.innerHTML = `
+        <input type="text" class="custom-point-input" value="${value}" placeholder="Enter point...">
+        <button type="button" class="point-remove-btn" onclick="this.parentElement.remove(); state.points = Array.from(document.querySelectorAll('.custom-point-input')).map(inp => inp.value);">✕</button>
+      `;
+      customPointsList.appendChild(row);
+    }
+
+    addPointBtn.addEventListener('click', () => {
+      addCustomPointRow();
+      continueBtn.disabled = false;
+    });
+
+    backBtn.addEventListener('click', () => {
+      showSection(null);
+      state.currentStep = 1;
+    });
+
+    continueBtn.addEventListener('click', async () => {
+      if (state.choice === 'custom') {
+        state.points = Array.from(document.querySelectorAll('.custom-point-input'))
+          .map(inp => inp.value.trim())
+          .filter(p => p);
+      }
+
+      if (!state.points.length) {
+        showMessage('Please ensure you have at least one point', 'error');
+        return;
+      }
+
+      continueBtn.disabled = true;
+      updateStatusItem(3, true);
+      showMessage('Generating content for each slide<span class="loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>', 'info');
+
+      try {
+        // Generate content for each point
+        state.content = {};
+        for (let i = 0; i < state.points.length; i++) {
+          const point = state.points[i];
+          const contentPrompt = `Write a brief, professional, and humanized paragraph about "${point}" in context of "${state.topic}". The tone should be ${state.tone === 'college_seminar' ? 'simple and suitable for a college seminar' : state.tone}. Keep it to 2-3 sentences, suitable for a presentation slide. Make it engaging and easy to understand.`;
+          
+          const content = await callGroqAPI(contentPrompt);
+          state.content[i] = content;
+
+          // Update progress
+          const progress = Math.round((i / state.points.length) * 100);
+          showMessage(`Generating content: ${progress}% complete<div class="loading-bar"><div class="loading-bar-fill" style="width: ${progress}%"></div></div>`, 'info');
+        }
+
+        updateStatusItem(3, false);
+        updateStatusItem(4, true);
+        
+        // Show preview
+        showPreview();
+        
+        updateStatusItem(4, false);
+        updateStatusItem(5, true);
+        showMessage('All content ready! Preview below and download your PDF.', 'success');
+        
+      } catch (error) {
+        continueBtn.disabled = false;
+        updateStatusItem(3, false);
+      }
+    });
+
+    // ============================================
+    // Step 3: Preview & Generate PDF
+    // ============================================
+    function showPreview() {
+      showSection(previewSection);
+      previewMessage.innerHTML = '';
+      
+      let html = '';
+
+      // Title Slide
+      html += `
+        <div class="slide-preview">
+          <h3 style="font-size: 32px; text-align: center; border: none; padding: 40px 0;">
+            ${state.topic}
+          </h3>
+          <p style="text-align: center; font-size: 16px; margin: 20px 0;">
+            A Presentation
+          </p>
+          <p style="text-align: center; font-size: 16px; margin: 40px 0 0;">
+            By ${state.userName}
+          </p>
+          <p style="text-align: center; font-size: 13px; opacity: 0.8; margin-top: 20px;">
+            AI PPT Maker by Yahya
+          </p>
+        </div>
+      `;
+
+      // Content Slides
+      state.points.forEach((point, idx) => {
+        html += `
+          <div class="slide-preview">
+            <h3>${point}</h3>
+            <p>${state.content[idx]}</p>
+          </div>
+        `;
+      });
+
+      previewContent.innerHTML = html;
+    }
+
+    editBtn.addEventListener('click', () => {
+      state.currentStep = 2;
+      showSection(optionsSection);
+    });
+
+    // ============================================
+    // PDF Generation
+    // ============================================
+    downloadBtn.addEventListener('click', async () => {
+      downloadBtn.disabled = true;
+      showMessage('Creating PDF document<span class="loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>', 'info');
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4'
+        });
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 15;
+        const textWidth = pageWidth - 2 * margin;
+
+        // Set font
+        doc.setFont('Helvetica');
+
+        // Title Slide
+        doc.setFillColor(102, 126, 234);
+        doc.rect(0, 0, pageWidth, pageHeight, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(40);
+        doc.text(state.topic, pageWidth / 2, pageHeight / 3, { align: 'center', maxWidth: textWidth });
+
+        doc.setFontSize(18);
+        doc.text('A Presentation', pageWidth / 2, pageHeight / 2, { align: 'center' });
+
+        doc.setFontSize(16);
+        doc.text(`By ${state.userName}`, pageWidth / 2, pageHeight / 2 + 20, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text('AI PPT Maker by Yahya', pageWidth / 2, pageHeight - 30, { align: 'center' });
+
+        // Content Slides
+        state.points.forEach((point, idx) => {
+          doc.addPage();
+          
+          // Gradient-like header
+          doc.setFillColor(102, 126, 234);
+          doc.rect(0, 0, pageWidth, 30, 'F');
+          
+          // Title
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(20);
+          doc.text(point, margin, 20, { maxWidth: textWidth });
+          
+          // Content
+          doc.setTextColor(0, 0, 0);
+          doc.setFontSize(12);
+          doc.setFont('Helvetica', 'normal');
+          
+          const content = state.content[idx];
+          const textLines = doc.splitTextToSize(content, textWidth);
+          
+          doc.text(textLines, margin, 45);
+          
+          // Footer
+          doc.setFontSize(10);
+          doc.setTextColor(150, 150, 150);
+          doc.text(`Page ${idx + 2}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+        });
+
+        // Download
+        doc.save(`${state.topic.replace(/\s+/g, '_')}_by_${state.userName.replace(/\s+/g, '_')}.pdf`);
+        
+        downloadBtn.disabled = false;
+        showMessage(`✓ PDF downloaded successfully! (${state.points.length + 1} slides)`, 'success');
+
+      } catch (error) {
+        console.error('PDF Generation Error:', error);
+        downloadBtn.disabled = false;
+        showMessage('Error generating PDF. Please try again.', 'error');
+      }
+    });
+
+    // ============================================
+    // Form Reset
+    // ============================================
+    resetBtn.addEventListener('click', () => {
+      form.reset();
+      messageBox.innerHTML = '';
+      state.currentStep = 1;
+    });
+
+    // ============================================
+    // Initial Setup
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('AI PPT Maker Agent loaded');
+      console.log('⚠️ Remember to add your Groq API Key in the script!');
+    });
+  </script>
+</body>
+</html>
