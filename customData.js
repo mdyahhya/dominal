@@ -1,7 +1,7 @@
 const CUSTOM_DATA = {
   profile: {
     name: "Yahya",
-    father: "FATHER'S NAME",
+    father: "Ab. Wahid Mundewadi",
   education: {
     degree: "Computer Science Engineering",
     college: "VVPIET",
