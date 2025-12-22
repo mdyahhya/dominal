@@ -103,12 +103,11 @@
 
     /* Logo image styling */
     .logo-image {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 30px;
-      display: block;
-      animation: logoGlow 3s ease-in-out infinite;
-      object-fit: cover;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 30px;
+  display: block;
+  object-fit: cover;
     }
 
     @keyframes logoGlow {
@@ -175,7 +174,7 @@
       .logo-image {
         width: 80px;
         height: 80px;
-        margin-bottom: 20px;
+        margin-bottom: 5px;
       }
     }
 
@@ -342,7 +341,13 @@
       line-height: 1.7;
       margin: 0;
     }
-
+@media (max-width: 768px) {
+  .logo-image {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 5px;
+  }
+}
     /* Mobile responsiveness */
     @media (max-width: 768px) {
       .logo {
