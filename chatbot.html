@@ -6,7 +6,6 @@
 <!-- Load custom data first -->
 <script src="customData.js"></script>
 
-
 <title>Dominal AI - Chat Interface</title>
   
 <style>
@@ -22,10 +21,11 @@
   --bg-sidebar: #202123;
   --bg-hover: #2a2b32;
   --bg-chat-user: #f7f7f8;
-  --bg-chat-assistant: #ffffff;
+  --bg-chat-assistant: #000000; /* Changed to black */
   --text-primary: #353740;
   --text-secondary: #6e6e80;
   --text-sidebar: #ececf1;
+  --text-assistant: #ffffff; /* White text for black background */
   --border-color: #d9d9e3;
   --accent-color: #10a37f;
   --accent-hover: #0d8f6f;
@@ -81,12 +81,12 @@ body {
   }
 }
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
   .sidebar {
-    width: 100%;     /* Full width on mobile */
-    max-width: 320px; /* Limit max width */
+    width: 100%;
+    max-width: 320px;
   }
-  }
+}
 
 .sidebar-header {
   padding: 12px;
@@ -116,7 +116,7 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 12px;
-  max-height: calc(100vh - 280px);  /* ADD: Limit height */
+  max-height: calc(100vh - 280px);
 }
 
 .chat-history-item {
@@ -168,33 +168,32 @@ body {
 }
 
 .sidebar-footer {
-  padding: 12px 16px;  /* Reduced padding */
+  padding: 12px 16px;
   border-top: 1px solid rgba(255,255,255,0.1);
   color: var(--text-sidebar);
-  font-size: 12px;     /* Smaller font */
-  flex-shrink: 0;      /* Prevent shrinking */
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
 .model-info {
-  padding: 6px 12px;   /* Reduced padding */
+  padding: 6px 12px;
   background: rgba(255,255,255,0.05);
   border-radius: 6px;
-  margin-bottom: 6px;  /* Reduced margin */
+  margin-bottom: 6px;
 }
 
 .clear-all-btn {
   width: 100%;
-  padding: 8px 16px;   /* Reduced padding */
+  padding: 8px 16px;
   background: transparent;
   border: 1px solid var(--danger-color);
   color: var(--danger-color);
   border-radius: 8px;
-  font-size: 12px;     /* Smaller font */
+  font-size: 12px;
   cursor: pointer;
-  margin-top: 6px;     /* Reduced margin */
+  margin-top: 6px;
   transition: all 0.2s;
 }
-
 
 /* Mobile: Compact sidebar footer */
 @media (max-width: 768px) {
@@ -244,7 +243,6 @@ body {
   color: rgba(255,255,255,0.4);
   margin-top: 8px;
 }
-
 
 .clear-all-btn:hover {
   background: var(--danger-color);
@@ -329,18 +327,18 @@ body {
 }
 
 .logo-container {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 20px;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
-  font-weight: 700;
-  color: white;
   margin-bottom: 24px;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.logo-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .empty-title {
@@ -382,28 +380,37 @@ body {
   display: flex;
   gap: 24px;
   align-items: flex-start;
-  flex-wrap: wrap;               /* ADD: Allow wrapping */
+  flex-wrap: wrap;
 }
+
 .message-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 14px;
   flex-shrink: 0;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.message-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .user .message-avatar {
   background: #667eea;
   color: white;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .assistant .message-avatar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: transparent;
+  padding: 0;
 }
 
 .message-content {
@@ -411,11 +418,16 @@ body {
   line-height: 1.7;
   font-size: 16px;
   word-wrap: break-word;
-  overflow-wrap: break-word;     /* ADD: Better word breaking */
-  word-break: break-word;        /* ADD: Break long words */
-  hyphens: auto;                 /* ADD: Hyphenation */
-  max-width: 100%;               /* ADD: Prevent overflow */
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  max-width: 100%;
   padding-top: 5px;
+}
+
+/* White text for assistant messages on black background */
+.assistant .message-content {
+  color: var(--text-assistant);
 }
 
 .typing-indicator {
@@ -427,7 +439,7 @@ body {
 .typing-dot {
   width: 8px;
   height: 8px;
-  background: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 50%;
   animation: typing 1.4s infinite;
 }
@@ -459,7 +471,7 @@ body {
 
 .chat-input {
   width: 100%;
-  padding: 16px 52px 16px 16px;
+  padding: 16px 52px 16px 52px;
   border: 1px solid var(--border-color);
   border-radius: 12px;
   font-size: 16px;
@@ -565,9 +577,7 @@ body {
   }
 }
 
-
-
-  /* Hide menu button on desktop (PC) */
+/* Hide menu button on desktop (PC) */
 @media (min-width: 769px) {
   .menu-btn {
     display: none !important;
@@ -593,7 +603,6 @@ body {
   }
 }
 
-
 .voice-button {
   position: absolute;
   left: 12px;
@@ -609,12 +618,12 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  padding: 0;  /* ADD */
+  padding: 0;
 }
 
 .voice-button svg {
-  width: 20px;   /* ADD */
-  height: 20px;  /* ADD */
+  width: 20px;
+  height: 20px;
 }
 
 .voice-button:hover {
@@ -632,40 +641,19 @@ body {
   50% { opacity: 0.5; }
 }
 
-/* Update chat input to make room for voice button */
-.chat-input {
-  width: 100%;
-  padding: 16px 52px 16px 52px; /* Changed from 16px 52px 16px 16px */
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: inherit;
-  outline: none;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  resize: none;
-  min-height: 54px;
-  max-height: 200px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
 /* Message action buttons (copy, speak) */
 .message-actions {
   display: flex;
   gap: 8px;
   margin-top: 8px;
-  opacity: 1;  /* Changed from 0 to 1 */
+  opacity: 1;
   transition: opacity 0.2s;
 }
-/* 
-.message-wrapper.assistant:hover .message-actions {
-  opacity: 1;
-} */
 
 .action-btn {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -715,6 +703,32 @@ body {
   font-size: 18px;
 }
 
+.chat-close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-left: 30px;
+  justify-content: center;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .chat-close-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 1.2rem;
+    margin-left: 30px;
+    position: relative;
+  }
+}
 </style>
 </head>
 <body>
@@ -722,10 +736,6 @@ body {
 <div class="app-container">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <a href="ppt.html" class="ppt-maker-btn">
-    <span class="icon">🎯</span>
-    <span>AI PPT Maker</span>
-  </a>
       <button class="new-chat-btn" id="newChatBtn">
         <span>+</span>
         <span>New Chat</span>
@@ -746,14 +756,17 @@ body {
   <div class="main-content">
     <div class="top-bar">
       <button class="menu-btn" id="menuBtn">☰</button>
-      <div class="top-bar-title">Dominal AI by Yahya</div>
+      <div class="top-bar-title">Dominal AI Assistant</div>
+      <button class="chat-close-btn" id="chatCloseBtn">✕</button>
       <div style="width: 32px;"></div>
     </div>
     
     <div class="chat-container" id="chatContainer">
       <div class="empty-state" id="emptyState">
-        <div class="logo-container">D</div>
-        <div class="empty-title">Dominal AI v2.5</div>
+        <div class="logo-container">
+          <img src="logo.png" alt="Dominal AI Logo">
+        </div>
+        <div class="empty-title">Dominal v2.5</div>
         <div class="empty-subtitle">How can I help you today?</div>
       </div>
       <div class="chat-messages" id="chatMessages"></div>
@@ -762,14 +775,13 @@ body {
     <div class="input-container">
       <div class="input-wrapper">
         <button class="voice-button" id="voiceButton" title="Voice input">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-    <line x1="12" y1="19" x2="12" y2="23"></line>
-    <line x1="8" y1="23" x2="16" y2="23"></line>
-  </svg>
-</button>
-
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        </button>
         <textarea class="chat-input" id="chatInput" placeholder="Send a message or use voice..." rows="1"></textarea>
         <button class="send-button" id="sendButton">➤</button>
       </div>
@@ -778,12 +790,7 @@ body {
   </div>
 </div>
 
-
-
 <script>
-
-
-
 // ============================================================
 // CUSTOM DATA FILTERING SYSTEM
 // ============================================================
@@ -797,19 +804,15 @@ function getFilteredCustomData(userInput) {
   if (/students?|boys|girls|class|grade|find.*student|student.*list|roll/i.test(input)) {
     let grade = null, division = null;
     
-    // Extract grade (9th, 10th, etc.)
-    let gradeMatch = /(d{1,2})(st|nd|rd|th)?/i.exec(input);
+    let gradeMatch = /(\d{1,2})(st|nd|rd|th)?/i.exec(input);
     if (gradeMatch) grade = parseInt(gradeMatch[1]);
     
-    // Extract division (A, B, C, etc.)
-    let divMatch = /divisions*([a-e])|(?:class|std|grade)?s*d{1,2}s*([a-e])/i.exec(input);
+    let divMatch = /division\s*([a-e])|(?:class|std|grade)?\s*\d{1,2}\s*([a-e])/i.exec(input);
     if (divMatch) division = (divMatch[1] || divMatch[2]).toUpperCase();
     
-    // Find student by name
-    let nameMatch = /finds+students+([a-z ]+)|students+([a-z ]+)/i.exec(input);
+    let nameMatch = /find\s+student\s+([a-z ]+)|student\s+([a-z ]+)/i.exec(input);
     let searchName = nameMatch ? (nameMatch[1] || nameMatch[2]).trim().toLowerCase() : null;
     
-    // Filter students
     let students = CUSTOM_DATA.students || [];
     if (grade !== null) students = students.filter(s => s.grade === grade);
     if (division) students = students.filter(s => s.division === division);
@@ -857,21 +860,19 @@ function getFilteredCustomData(userInput) {
   if (/projects?|portfolio|your work|apps|built|product|tools|platform/i.test(input)) {
     let projects = CUSTOM_DATA.projects || [];
     
-    // Search by project name or tags
     let filtered = projects.filter(p => {
       let matchesTag = p.tags?.some(tag => input.includes(tag.toLowerCase()));
       let matchesName = input.includes(p.name.toLowerCase());
       return matchesTag || matchesName;
     });
     
-    if (filtered.length === 0) filtered = projects; // Show all if no specific match
+    if (filtered.length === 0) filtered = projects;
     
     dataset = filtered;
     filterCause = "Projects";
     return { result: dataset, filterCause };
   }
   
-  // 6. NO MATCH - Return empty
   return { result: [], filterCause: "" };
 }
 
@@ -1025,7 +1026,15 @@ function addMessageToDisplay(role, content, animate = true) {
   
   const avatar = document.createElement('div');
   avatar.className = 'message-avatar';
-  avatar.textContent = role === 'user' ? 'Y' : 'D';
+  
+  if (role === 'assistant') {
+    const logoImg = document.createElement('img');
+    logoImg.src = 'logo.png';
+    logoImg.alt = 'Dominal AI';
+    avatar.appendChild(logoImg);
+  } else {
+    avatar.textContent = 'Y';
+  }
   
   const messageContent = document.createElement('div');
   messageContent.className = 'message-content';
@@ -1037,12 +1046,10 @@ function addMessageToDisplay(role, content, animate = true) {
   contentWrapper.style.flex = '1';
   contentWrapper.appendChild(messageContent);
   
-  // Add action buttons for assistant messages
   if (role === 'assistant') {
     const actionsDiv = document.createElement('div');
     actionsDiv.className = 'message-actions';
     
-    // Copy button
     const copyBtn = document.createElement('button');
     copyBtn.className = 'action-btn';
     copyBtn.innerHTML = '📋 Copy';
@@ -1054,21 +1061,19 @@ function addMessageToDisplay(role, content, animate = true) {
       }, 2000);
     };
     
-    // Speak button
     const speakBtn = document.createElement('button');
     speakBtn.className = 'action-btn';
     speakBtn.innerHTML = '🔊 Speak';
-   speakBtn.onclick = () => {
-  const isSpeaking = speakText(content, speakBtn);  // Pass speakBtn
-  if (isSpeaking) {
-    speakBtn.classList.add('speaking');
-    speakBtn.innerHTML = '⏸ Stop';
-  } else {
-    speakBtn.classList.remove('speaking');
-    speakBtn.innerHTML = '🔊 Speak';
-  }
-};
-
+    speakBtn.onclick = () => {
+      const isSpeaking = speakText(content, speakBtn);
+      if (isSpeaking) {
+        speakBtn.classList.add('speaking');
+        speakBtn.innerHTML = '⏸ Stop';
+      } else {
+        speakBtn.classList.remove('speaking');
+        speakBtn.innerHTML = '🔊 Speak';
+      }
+    };
     
     actionsDiv.appendChild(copyBtn);
     actionsDiv.appendChild(speakBtn);
@@ -1091,7 +1096,6 @@ function addMessageToDisplay(role, content, animate = true) {
   return messageContent;
 }
 
-
 function addTypingIndicator() {
   const wrapper = document.createElement('div');
   wrapper.className = 'message-wrapper assistant';
@@ -1102,7 +1106,10 @@ function addTypingIndicator() {
   
   const avatar = document.createElement('div');
   avatar.className = 'message-avatar';
-  avatar.textContent = 'D';
+  const logoImg = document.createElement('img');
+  logoImg.src = 'logo.png';
+  logoImg.alt = 'Dominal AI';
+  avatar.appendChild(logoImg);
   
   const content = document.createElement('div');
   content.className = 'message-content';
@@ -1129,7 +1136,6 @@ function removeTypingIndicator() {
 function scrollToBottom() {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
-
 
 // Voice recognition setup
 let recognition = null;
@@ -1165,7 +1171,6 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 let currentSpeech = null;
 
 function speakText(text, button) {
-  // Stop any ongoing speech
   if (currentSpeech) {
     window.speechSynthesis.cancel();
     currentSpeech = null;
@@ -1195,10 +1200,8 @@ function speakText(text, button) {
   return true;
 }
 
-
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
-    // Optional: Show copied notification
     console.log('Copied to clipboard');
   }).catch(err => {
     console.error('Failed to copy:', err);
@@ -1228,14 +1231,11 @@ async function sendMessage() {
   updateConversationTitle(conv);
   saveConversations();
   
-  // ===== CUSTOM DATA FILTERING =====
   const filterResult = getFilteredCustomData(message);
   const filteredData = filterResult.result || [];
   const filterCause = filterResult.filterCause || "";
   
-  // Build system prompt with Yahya's data
- // Build system prompt with Yahya's data
-let systemPrompt = `You are Dominal AI, an intelligent assistant for Dominal Group founded by Yahya.
+  let systemPrompt = `You are Dominal AI, an intelligent assistant for Dominal Group founded by Yahya.
 
 ABOUT YAHYA:
 Yahya Mundewadi is the founder of Dominal Group, a full-stack and mobile developer. He is the son of Ab. Wahid Mundewadi. He demonstrated academic excellence by scoring 87% in his 12th Board exams and completed his Computer Science Engineering degree with a 7.5 CGPA, clearing all four years with no backlogs.
@@ -1256,7 +1256,6 @@ IMPORTANT: Answer ONLY using the data provided above. If information is not in t
     console.log(`✅ Filter: ${filterCause} | Items: ${filteredData.length}`);
   }
   
-  // Build messages for API
   let apiMessages = [
     { role: 'system', content: systemPrompt },
     { role: 'user', content: message }
@@ -1265,7 +1264,6 @@ IMPORTANT: Answer ONLY using the data provided above. If information is not in t
   const typingIndicator = addTypingIndicator();
   
   try {
-    // Call Netlify function instead of Ollama
     const response = await fetch('/.netlify/functions/chat', {
       method: 'POST',
       headers: {
@@ -1328,7 +1326,6 @@ newChatBtn.addEventListener('click', () => {
 clearAllBtn.addEventListener('click', clearAllConversations);
 
 menuBtn.addEventListener('click', () => {
-  // Only toggle on mobile
   if (window.innerWidth <= 768) {
     sidebar.classList.toggle('open');
     overlay.classList.toggle('active');
@@ -1344,17 +1341,6 @@ function closeSidebar() {
   }
 }
 
-// Update on new chat button click (mobile only)
-// newChatBtn.addEventListener('click', () => {
-//   createNewConversation();
-//   if (window.innerWidth <= 768) {
-//     closeSidebar();
-//   }
-// });
-  // (Already included in step 5 above - remove duplicate if exists)
-
-
-// Ensure correct state on resize
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) {
     sidebar.classList.remove('open');
@@ -1362,7 +1348,6 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Voice button click
 const voiceButton = document.getElementById('voiceButton');
 if (voiceButton && recognition) {
   voiceButton.addEventListener('click', () => {
@@ -1377,7 +1362,7 @@ if (voiceButton && recognition) {
     }
   });
 } else if (voiceButton && !recognition) {
-  voiceButton.style.display = 'none'; // Hide if not supported
+  voiceButton.style.display = 'none';
 }
 
 // ============================================================
@@ -1394,8 +1379,32 @@ if (conversations.length === 0) {
 
 chatInput.focus();
 
-</script>
+window.addEventListener('load', () => {
+  history.pushState({ fromChat: true }, '', window.location.href);
+});
 
+window.addEventListener('popstate', (event) => {
+  window.location.href = 'index.html';
+});
+
+function goBackToMain() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage('closeChat', '*');
+  } else {
+    window.location.href = 'index.html';
+  }
+}
+
+document.getElementById('chatCloseBtn')?.addEventListener('click', goBackToMain);
+
+window.addEventListener('load', () => {
+  history.pushState({ fromChat: true }, '', window.location.href);
+});
+
+window.addEventListener('popstate', () => {
+  window.location.href = 'index.html';
+});
+</script>
 
 </body>
 </html>
