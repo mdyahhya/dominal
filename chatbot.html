@@ -9,24 +9,26 @@
 <title>Dominal AI - Chat Interface</title>
   
 <style>
-* {
+  
+          
+    * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
 :root {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f7f7f8;
-  --bg-sidebar: #202123;
-  --bg-hover: #2a2b32;
-  --bg-chat-user: #f7f7f8;
-  --bg-chat-assistant: #000000; /* Changed to black */
-  --text-primary: #353740;
-  --text-secondary: #6e6e80;
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-sidebar: #000000;
+  --bg-hover: #1a1a1a;
+  --bg-chat-user: #0a0a0a;
+  --bg-chat-assistant: #000000;
+  --text-primary: #ffffff;
+  --text-secondary: #999999;
   --text-sidebar: #ececf1;
-  --text-assistant: #ffffff; /* White text for black background */
-  --border-color: #d9d9e3;
+  --text-assistant: #ffffff;
+  --border-color: #2a2a2a;
   --accent-color: #10a37f;
   --accent-hover: #0d8f6f;
   --danger-color: #ef4444;
@@ -51,7 +53,7 @@ body {
 
 .sidebar {
   width: 280px;
-  background: #1a1a1a;
+  background: #000000;
   border-right: 1px solid #2a2a2a;
   display: flex;
   flex-direction: column;
@@ -257,6 +259,7 @@ body {
   position: relative;
   z-index: 1;
   transition: margin-left 0.3s ease;
+  background: #000000;
 }
 
 /* Desktop: Add margin for sidebar */
@@ -279,7 +282,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--bg-primary);
+  background: #000000;
   z-index: 2;
 }
 
@@ -315,6 +318,7 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  background: #000000;
 }
 
 .empty-state {
@@ -324,11 +328,12 @@ body {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
+  background: #000000;
 }
 
 .logo-container {
-  width: 120px;
-  height: 120px;
+  width: 200px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -339,6 +344,13 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .logo-container {
+    width: 180px;
+    height: 180px;
+  }
 }
 
 .empty-title {
@@ -358,6 +370,7 @@ body {
 
 .chat-messages {
   flex: 1;
+  background: #000000;
 }
 
 .message-wrapper {
@@ -366,11 +379,11 @@ body {
 }
 
 .message-wrapper.user {
-  background: var(--bg-chat-user);
+  background: #0a0a0a;
 }
 
 .message-wrapper.assistant {
-  background: var(--bg-chat-assistant);
+  background: #000000;
 }
 
 .message {
@@ -384,33 +397,50 @@ body {
 }
 
 .message-avatar {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   overflow: hidden;
-  background: #f0f0f0;
+  background: transparent;
 }
 
 .message-avatar img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 5px;
 }
 
 .user .message-avatar {
   background: #667eea;
   color: white;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 20px;
+}
+
+.user .message-avatar img {
+  padding: 0;
+  object-fit: cover;
 }
 
 .assistant .message-avatar {
   background: transparent;
   padding: 0;
+}
+
+@media (max-width: 768px) {
+  .message-avatar {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .user .message-avatar {
+    font-size: 18px;
+  }
 }
 
 .message-content {
@@ -423,6 +453,7 @@ body {
   hyphens: auto;
   max-width: 100%;
   padding-top: 5px;
+  color: var(--text-primary);
 }
 
 /* White text for assistant messages on black background */
@@ -459,7 +490,7 @@ body {
 
 .input-container {
   padding: 24px;
-  background: var(--bg-primary);
+  background: #000000;
   border-top: 1px solid var(--border-color);
 }
 
@@ -477,7 +508,7 @@ body {
   font-size: 16px;
   font-family: inherit;
   outline: none;
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   color: var(--text-primary);
   resize: none;
   min-height: 54px;
@@ -728,7 +759,7 @@ body {
     margin-left: 30px;
     position: relative;
   }
-}
+  }
 </style>
 </head>
 <body>
